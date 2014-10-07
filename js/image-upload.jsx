@@ -11,9 +11,10 @@ define([
 
     /**
      * params
-     *   loadstart: function (xhr, file_obj, e)
-     *   progress: function (xhr, file_obj, e, percentage)
-     *   loadend: function (xhr, file_obj, e)
+     *   loadstart:    function (xhr, file_obj, e)
+     *   progress:     function (xhr, file_obj, e, percentage)
+     *   uploaded:     function(response, xhr, file_obj, e)
+     *   upload_error: function (error_code, error_arg, response, xhr, file_obj, e)
      */
     var upload_file = function(file_obj, params) {
         var xhr = new XMLHttpRequest();
@@ -30,8 +31,26 @@ define([
             params.progress(xhr, file_obj, e, percentage);
         });
 
-        xhr.addEventListener("loadend", function(e) {
-            params.loadend(xhr, file_obj, e);
+        xhr.addEventListener("loadend", function (e) {
+
+            if(xhr.status != 200) {
+                params.upload_error('http-status', xhr.status, xhr.responseText, xhr, file_obj, e);
+                return;
+            }
+
+            try {
+                var json_response = $.parseJSON(xhr.responseText);
+            } catch (err) {
+                params.upload_error('json-decode', err, xhr.responseText, xhr, file_obj, e);
+                return;
+            }
+
+            if (json_response.status === 'ok') {
+                params.uploaded(json_response, xhr, file_obj, e);
+                return;
+            }
+
+            params.upload_error('status', json_response.status, json_response, xhr, file_obj, e);
         }, false);
 
         // build and send request with form data
@@ -71,45 +90,6 @@ define([
         return filename;
     };
 
-    /*
-    var $$this = this;
-
-    $scope.$apply(function() {
-        var image_id  = null,
-            image_ext = null;
-
-        if($$this.status == 200) {
-            var json_response = $.parseJSON($$this.responseText);
-
-            if(json_response.code === 'not-an-image') {
-                file_obj.message = 'Файл не является изображением';
-            } else if(json_response.status === 'ok') {
-                file_obj.message = 'Файл загружен';
-                image_id = json_response.id;
-                image_ext = json_response.ext;
-            } else {
-                file_obj.message = json_response.message ? ('Ошибка: ' + json_response.message) : 'Ошибк загрузки изображения';
-            }
-        } else {
-            file_obj.progress = "Ошибка " + $$this.status;
-        }
-
-        file_obj.done = true;
-
-        var all_done = true;
-
-        $.each($scope.files_to_upload, function(i, f) {
-            if(f.deferred === file_obj.deferred) {
-                all_done = all_done && f.done;
-            }
-        });
-
-        if(all_done) {
-            //$scope.files_to_upload = [];
-            file_obj.deferred.resolve(image_id, image_ext);
-        }
-    });
-    */
 
     /**
      * config:
@@ -131,7 +111,7 @@ define([
 
         getInitialState: function () {
             return {
-                mode: 'display',
+                mode: 'display',  // display|progress|error
                 imageInfo: this.props.imageInfo || {id: null, ext: null},
                 progress: null
             };
@@ -157,38 +137,64 @@ define([
 
                 return (
                     <div>
-                        <input type="file" accept="image/*" onChange={c.onFileSelected}/>
-                        {thumb_src && <img src={thumb_src}/>}
-                        <div className="buttons">
+                        <input ref="fileInput" type="file" accept="image/*" onChange={c.onFileSelected}/>
+                        {thumb_src &&
+                            <img src={thumb_src} onClick={c.onSelectFile} />
+                        }
+                        {thumb_src &&
+                            <div className="buttons">
                             {c.config.show_del_button &&
                                 <a href onClick={c.onDelete} title="Удалить">
                                     <span className="glyphicon glyphicon-remove gi gi-remove"/>
                                 </a>
-                            }
+                                }
                             {c.config.show_link_button &&
                                 <a href onClick={c.onOpenLarge} title="Открыть оригинал">
                                     <span className="glyphicon glyphicon-new-window gi gi-new_window"/>
                                 </a>
-                            }
-                        </div>
+                                }
+                            </div>
+                        }
+                        {!thumb_src &&
+                            <div className="no-image" onClick={c.onSelectFile}>
+                                Загрузить изображение
+                            </div>
+                        }
                     </div>
                 );
             };
 
             var render_progress = function () {
-                var width = '' + s.progress + '%';
+                var width = s.progress;
+
+                var progress_bar_classes = React.addons.classSet({
+                    'progress-bar': true,
+                    'progress-bar-striped': s.progress === 100,
+                    'active': s.progress === 100 && s.mode !== 'error',
+                    'progress-bar-danger': s.mode === 'error'
+                });
+
+                var progress_bar_msg = s.mode === 'error' ? '' : s.progress + '%';
 
                 return (
-                    <div>
+                    <div className="progress-item" onClick={c.onProgressClicked}>
+                        <p>{s.file_obj.name} {s.file_obj.size}</p>
+                        {s.mode === 'error' && <p className="text-danger">{s.message}</p>}
                         <div className="progress">
-                            <div className="progress-bar progress-bar-striped active" style={{width: width}}>{s.progress}%</div>
+                            <div className={progress_bar_classes} style={{width: width + '%'}}>{progress_bar_msg}</div>
                         </div>
                     </div>
                 );
             };
 
+            var modes = {
+                'display':   render_image,
+                'progress':  render_progress,
+                'error':     render_progress
+            };
+
             return <div className="rat-image-field">
-                {s.mode === 'uploading' ? render_progress() : render_image()}
+                {modes[s.mode]()}
             </div>;
         },
 
@@ -204,7 +210,9 @@ define([
                 upload_url:        '/upload',
                 file_param:        'file',
                 upload_params:     {},
+                // TODO validation callback
 
+                thumb_size:        [125, 125],
                 show_del_button:   true,               // show delete button
                 show_link_button:  true                // show "view original" button
             }, p.config);
@@ -226,18 +234,15 @@ define([
                 size: human_readable_file_size(file.size),
                 upload_url: c.config.upload_url,
                 file_param: c.config.file_param || 'file',
-                upload_params: c.config.upload_params,
-                progress: 'notyetstarted',
-                message: '',
-                done: false//,
-                //deferred: deferred
+                upload_params: c.config.upload_params
             };
 
             console.log('file selected', file);
 
             c.setState({
-                mode: 'uploading',
-                progress: null
+                mode: 'progress',
+                file_obj: file_obj,
+                progress: 0  // ? waiting for upload
             });
 
             upload_file(file_obj, {
@@ -251,15 +256,40 @@ define([
                     c.setState({progress: percentage});
                 },
 
-                loadend: function (xhr, file_obj, event) {
-                    var resp = $.parseJSON(xhr.responseText);  // TODO catch SyntaxError
-                    console.log('loadend', xhr.status, resp);
+                uploaded: function (resp, xhr, file_obj, event) {
+                    console.log('uploaded', xhr.status, resp);
                     c.setState({
                         mode: 'display',
-                        imageInfo: {id: resp.id, ext: resp.ext}
+                        imageInfo: {id: resp.id, ext: resp.ext},
+                        file_obj: null
+                    });
+                },
+
+                upload_error: function (error_code, error_arg, response, xhr, file_obj, e) {
+                    console.log('upload_error', error_code, error_arg, response);
+
+                    var message = 'Ошибка загрузки: ' + error_code + ' ' + error_arg;
+
+                    if (error_code == 'status' && response.code === 'not-an-image') {
+                        message = 'Файл не является изображением';
+                    } else if (error_code == 'status') {
+                        message = response.code || response.message;
+                    } else if (error_code == 'http-status' && error_arg == 413) {
+                        message = 'Файл слишком большой';
+                    } else if (error_code == 'http-status') {
+                        message = 'Ошибка ' + error_arg;
+                    }
+
+                    c.setState({
+                        mode: 'error',
+                        message: message
                     });
                 }
             });
+        },
+
+        onSelectFile: function () {
+            this.refs.fileInput.getDOMNode().click();
         },
 
         onDelete: function () {
@@ -268,6 +298,15 @@ define([
 
         onOpenLarge: function () {
             console.log('onOpenLarge');
+        },
+
+        onProgressClicked: function () {
+            if (this.state.mode === 'error') {
+                this.setState({
+                    mode: 'display',
+                    file_obj: null
+                });
+            }
         }
     });
 
