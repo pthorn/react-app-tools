@@ -131,8 +131,10 @@ define([
             var render_image = function () {
                 var thumb_src = null;
                 if (s.imageInfo.id) {
-                    thumb_src = c.config.src_prefix + '/' + filename_from_template(c.config.thumb_name_tpl,
-                    {$id: s.imageInfo.id, $ext: s.imageInfo.ext});
+                    thumb_src = c.config.src_prefix + '/' + filename_from_template(
+                        c.config.thumb_name_tpl,
+                        {$id: s.imageInfo.id, $ext: s.imageInfo.ext}
+                    );
                 }
 
                 return (
@@ -147,12 +149,12 @@ define([
                                 <a href onClick={c.onDelete} title="Удалить">
                                     <span className="glyphicon glyphicon-remove gi gi-remove"/>
                                 </a>
-                                }
+                            }
                             {c.config.show_link_button &&
                                 <a href onClick={c.onOpenLarge} title="Открыть оригинал">
                                     <span className="glyphicon glyphicon-new-window gi gi-new_window"/>
                                 </a>
-                                }
+                            }
                             </div>
                         }
                         {!thumb_src &&
