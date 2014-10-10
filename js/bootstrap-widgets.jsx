@@ -138,7 +138,7 @@ define([
             $(this.refs.select.getDOMNode()).trigger('chosen:updated');
         },
 
-        handleChange: function (a, b, c) {
+        handleChange: function (e) {
             var selectedValue;
 
             if (this.props.multiple) {
@@ -158,8 +158,9 @@ define([
             // controlled value the parent dictated
             this.forceUpdate();
 
-            //console.log('Chosen handleChange: a b c:', a, b, c, 'selectedValue', selectedValue);
-            this.props.onChange && this.props.onChange({target: {value: selectedValue}});
+            console.log('Chosen handleChange:', selectedValue, selectedValue);
+            //this.props.onChange && this.props.onChange({target: {value: selectedValue}});
+            this.props.form.onFieldValueChanged(this.props.name, selectedValue);
         },
 
         componentDidMount: function () {
@@ -192,8 +193,15 @@ define([
         },
 
         render: function () {
+            var c = this,
+                form = this.props.form,
+                name = this.props.name;
+
+            // TODO serialize value
+            var value = form.state.model[name] || '';
+
             //return React.DOM.div(null,
-            return  this.transferPropsTo(React.DOM.select({ref: "select"}, this.props.children));
+            return  this.transferPropsTo(React.DOM.select({ref: "select", value: value}, this.props.children));
             //);
         }
     });
