@@ -1,6 +1,10 @@
 
 
-define([], function () {
+define([
+    'lodash'
+], function (
+    _
+) {
 
 
     var NotificationMixin = {
@@ -39,17 +43,26 @@ define([], function () {
 
     /**
      * events: [
-     *   [personStore, 'changed', function () {}],
+     *   [personStore, 'changed', function () {...}],
+     *   [fooStore,    'bar',     'onBar']  // this.onBar
      * ]
      *
      */
     var EventMixin = {
 
         componentWillMount: function () {
+            if (!_.isArray(this.events)) {
+                throw new Error('EventMixin expects this.events');
+            }
+
             this.events.forEach(function (event_spec) {
                 var event_source = event_spec[0],
                     event = event_spec[1],
                     event_handler = event_spec[2];
+
+                if (_.isString(event_handler)) {
+                    event_handler = this[event_handler];
+                }
 
                 event_source.on(event, event_handler.bind(this));
             }, this);
@@ -60,6 +73,10 @@ define([], function () {
                 var event_source = event_spec[0],
                     event = event_spec[1],
                     event_handler = event_spec[2];
+
+                if (_.isString(event_handler)) {
+                    event_handler = this[event_handler];
+                }
 
                 event_source.off(event, event_handler.bind(this));
             }, this);
