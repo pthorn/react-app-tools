@@ -29,7 +29,7 @@ define([
             }
 
             $.growl({
-                title: title,
+                title: '<h4>' + title + '</h4>',
                 message: text
             }, {
                 type: level,
