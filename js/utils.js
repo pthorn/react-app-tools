@@ -68,7 +68,9 @@ define([
                     event_handler = this[event_handler];
                 }
 
-                event_source.on(event, event_handler.bind(this));
+                event_handler = event_handler.bind(this);
+                event_source.on(event, event_handler);
+                event_spec.push(event_handler);
             }, this);
         },
 
@@ -76,13 +78,11 @@ define([
             this.events.forEach(function (event_spec) {
                 var event_source = event_spec[0],
                     event = event_spec[1],
-                    event_handler = event_spec[2];
+                    event_handler_orig = event_spec[2],
+                    event_handler = event_spec[3];
 
-                if (_.isString(event_handler)) {
-                    event_handler = this[event_handler];
-                }
-
-                event_source.off(event, event_handler.bind(this));
+                event_source.off(event, event_handler);
+                event_spec.pop();
             }, this);
         }
     };
