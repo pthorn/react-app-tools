@@ -52,10 +52,14 @@ define([
 
         componentWillMount: function () {
             if (!_.isArray(this.events)) {
-                throw new Error('EventMixin expects this.events');
+                throw new Error('EventMixin: this.events should be an array');
             }
 
             this.events.forEach(function (event_spec) {
+                if (event_spec.length != 3) {
+                    throw new Error('EventMixin: this.events elements should be arrays [object, "event", handler]');
+                }
+
                 var event_source = event_spec[0],
                     event = event_spec[1],
                     event_handler = event_spec[2];
