@@ -139,12 +139,11 @@ define([
             });
         };
 
-        this.deleteById = function () {
+        this.deleteById = function (entity, id) {
             var url = config.url_prefix + entity + '/' + id;
             return this.request({
                 url: url,
-                method: 'DElETE',
-                data: data
+                method: 'DElETE'
             });
         };
     };
