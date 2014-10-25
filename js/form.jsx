@@ -281,18 +281,18 @@ define([
     };
 
 
-    var Input = React.createClass({
+    var TextInput = React.createClass({
         propTypes: {
             form:     React.PropTypes.object.isRequired,
-            name:     React.PropTypes.string.isRequired
+            name:     React.PropTypes.string.isRequired,
+            type:     React.PropTypes.string
         },
 
-        /*
         getDefaultProps: function() {
             return {
-            value: 'default value'
+                type: 'text'
+            }
         },
-        */
 
         componentWillMount: function () {
             var c = this,
@@ -304,25 +304,31 @@ define([
 
         render: function () {
             var c = this,
-                form = this.props.form,
-                name = this.props.name;
+                p = this.props,
+                form = p.form,
+                name = p.name;
+
+            var cx = React.addons.classSet;
 
             // TODO serialize value
             var value = form.state.model[name] || '';
 
             // TODO class, style, placeholder etc.!
             return (
-                <input type="text" className="form-control"
-                       value={value} onChange={c.onChange} onBlur={c.onBlur} />
+                <input type={p.type}
+                       className="form-control"
+                       value={value}
+                       onChange={c.onChange}
+                       onBlur={c.onBlur} />
             );
         },
 
         onChange: function (e) {
-            var form = this.props.form,
-                name = this.props.name;
+            var c = this,
+                p = this.props,
+                form = p.form,
+                name = p.name;
 
-            console.log('Input.onChange:', name, e.target.value);
-            // TODO deserialize value
             form.onFieldValueChanged(name, e.target.value);
         },
 
@@ -330,15 +336,74 @@ define([
             var form = this.props.form,
                 name = this.props.name;
 
-            console.log('Input.onBlur:', name, e.target.value);
-            // TODO form.onFieldValueChanged(name, xxx);
-        }//,
-
-        /*
-        onValueChanged: function (e) {
+            //console.log('Input.onBlur:', name, e.target.value);
             // TODO form.onFieldValueChanged(name, xxx);
         }
-        */
+    });
+
+
+    var Checkbox = React.createClass({
+        propTypes: {
+            form:     React.PropTypes.object.isRequired,
+            name:     React.PropTypes.string.isRequired
+        },
+
+        getDefaultProps: function() {
+            return {
+            }
+        },
+
+        componentWillMount: function () {
+            var c = this,
+                form = this.props.form,
+                name = this.props.name;
+
+            // TODO form.addValidator(name, required);
+        },
+
+        render: function () {
+            var c = this,
+                p = this.props,
+                form = p.form,
+                name = p.name;
+
+            var cx = React.addons.classSet;
+
+            // TODO serialize value
+            var value = !!(form.state.model[name]);
+
+            // TODO class, style, placeholder etc.!
+            return (
+                <input type="checkbox"
+                       checked={value}
+                       onChange={c.onChange}
+                       onBlur={c.onBlur} />
+            );
+        },
+
+        onChange: function (e) {
+            var c = this,
+                p = this.props,
+                form = p.form,
+                name = p.name;
+
+            form.onFieldValueChanged(name, e.target.checked);
+        },
+
+        onBlur: function (e) {
+            var form = this.props.form,
+                name = this.props.name;
+
+            //console.log('Input.onBlur:', name, e.target.value);
+            // TODO form.onFieldValueChanged(name, xxx);
+        }
+    });
+
+
+    var RadioList = React.createClass({
+        render: function () {
+
+        }
     });
 
 
@@ -418,7 +483,9 @@ define([
         FormMixin:         FormMixin,
         ValidationMixin:   ValidationMixin,
         FormGroup:         FormGroup,
-        Input:             Input,
+        TextInput:         TextInput,
+        Checkbox:          Checkbox,
+        RadioList:         RadioList,
         Textarea:          Textarea,
         Select:            Select
     };
