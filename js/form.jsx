@@ -401,8 +401,47 @@ define([
 
 
     var RadioList = React.createClass({
-        render: function () {
+        propTypes: {
+            form:     React.PropTypes.object.isRequired,
+            name:     React.PropTypes.string.isRequired,
+            options:  React.PropTypes.array.isRequired
+        },
 
+        render: function () {
+            var c = this,
+                form = this.props.form,
+                name = this.props.name,
+                options = this.props.options;
+
+            var cx = React.addons.classSet;
+
+            // TODO serialize value
+            var value = form.state.model[name] || '';
+
+            var options_html = options.map(function (option) {
+                return <div className={cx({radio: true, disabled: options.disabled})}>
+                    <label>
+                        <input type="radio"
+                               checked={option.val == value}
+                               disabled={options.disabled}
+                               onChange={c.onChange.bind(null, option.val)} />
+                        {option.label}
+                    </label>
+                </div>
+            });
+
+            // TODO class, style, placeholder etc.!
+            return <div>
+                {options_html}
+            </div>;
+        },
+
+        onChange: function (val, e) {
+            var form = this.props.form,
+                name = this.props.name;
+
+            // TODO deserialize value
+            form.onFieldValueChanged(name, val);
         }
     });
 
