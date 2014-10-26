@@ -90,6 +90,42 @@ define([
         return filename;
     };
 
+    var PreviewImage = React.createClass({
+
+        render: function () {
+            var c = this,
+                p = this.props;
+
+            return (
+                <img ref="img" width={p.width} height={p.height} />
+            );
+        },
+
+        componentDidMount: function () {
+            var c = this,
+                p = this.props;
+
+            var $img = c.refs.img.getDOMNode();
+
+            // https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+            var reader = new FileReader();  // TODO test!
+
+            reader.onload = (function (img) {
+                return function (e) {
+                    img.src = e.target.result;
+                };
+            })($img);
+
+            reader.readAsDataURL(p.file_obj.file);
+        }
+    });
+
+    var modes = {
+        DISPLAY: 'display',
+        PREVIEW: 'preview',
+        PROGRESS: 'progress',
+        ERROR: 'error'
+    };
 
     /**
      * config:
@@ -101,7 +137,8 @@ define([
 
         propTypes: {
             config: React.PropTypes.object,
-            imageInfo: React.PropTypes.object
+            imageInfo: React.PropTypes.object,
+            onImageSelected: React.PropTypes.func
         },
 
         getDefaultProps: function () {
@@ -111,9 +148,10 @@ define([
 
         getInitialState: function () {
             return {
-                mode: 'display',  // display|progress|error
+                mode: modes.DISPLAY,
                 imageInfo: this.props.imageInfo || {id: null, ext: null},
-                progress: null
+                file_obj: null,
+                progress: null   // TODO remove
             };
         },
 
@@ -128,22 +166,51 @@ define([
 
             console.log('image info:', s.imageInfo);
 
-            var render_image = function () {
-                var thumb_src = null;
-                if (s.imageInfo.id) {
-                    thumb_src = c.config.src_prefix + '/' + filename_from_template(
-                        c.config.thumb_name_tpl,
-                        {$id: s.imageInfo.id, $ext: s.imageInfo.ext}
-                    );
-                }
+            var render_file_input = function () {
+                return <input type="file"
+                  accept="image/*"
+                  ref="fileInput"
+                  onChange={c.onFileSelected} />;
+            };
+
+            var render_empty = function () {
+                var style = {
+                    width: c.config.thumb_size[0] + 'px',
+                    height: c.config.thumb_size[1] + 'px'
+                };
 
                 return (
-                    <div>
-                        <input ref="fileInput" type="file" accept="image/*" onChange={c.onFileSelected}/>
-                        {thumb_src &&
-                            <img src={thumb_src} onClick={c.onSelectFile} />
-                        }
-                        {thumb_src &&
+                    <div style={style} className="no-image" onClick={c.onSelectFile}>
+                        {render_file_input()}
+                        <p>Загрузить изображение</p>
+                    </div>
+                );
+            };
+
+            var render_preview = function () {
+                return (
+                    <div className="preview">
+                        {render_file_input()}
+                        <PreviewImage
+                            width={c.config.thumb_size[0] + 'px'}
+                            height={c.config.thumb_size[1] + 'px'}
+                            file_obj={s.file_obj}
+                            onClick={c.onSelectFile} />
+                    </div>
+                );
+            };
+
+            var render_image = function () {
+                var thumb_src = c.config.src_prefix + '/' + filename_from_template(
+                    c.config.thumb_name_tpl,
+                    {$id: s.imageInfo.id, $ext: s.imageInfo.ext}
+                );
+
+                return (
+                    <div className="image">
+                        {render_file_input()}
+                        <img src={thumb_src} onClick={c.onSelectFile} />
+                        {(c.config.show_del_button || c.config.show_link_button) &&
                             <div className="buttons">
                             {c.config.show_del_button &&
                                 <a href onClick={c.onDelete} title="Удалить">
@@ -157,46 +224,59 @@ define([
                             }
                             </div>
                         }
-                        {!thumb_src &&
-                            <div className="no-image" onClick={c.onSelectFile}>
-                                Загрузить изображение
-                            </div>
-                        }
                     </div>
                 );
             };
 
             var render_progress = function () {
-                var width = s.progress;
-
                 var progress_bar_classes = React.addons.classSet({
                     'progress-bar': true,
                     'progress-bar-striped': s.progress === 100,
-                    'active': s.progress === 100 && s.mode !== 'error',
-                    'progress-bar-danger': s.mode === 'error'
+                    'active': s.progress === 100
                 });
-
-                var progress_bar_msg = s.mode === 'error' ? '' : s.progress + '%';
 
                 return (
                     <div className="progress-item" onClick={c.onProgressClicked}>
                         <p>{s.file_obj.name} {s.file_obj.size}</p>
                         {s.mode === 'error' && <p className="text-danger">{s.message}</p>}
                         <div className="progress">
-                            <div className={progress_bar_classes} style={{width: width + '%'}}>{progress_bar_msg}</div>
+                            <div className={progress_bar_classes} style={{width: s.progress + '%'}}>
+                                {s.progress + '%'}
+                            </div>
                         </div>
                     </div>
                 );
             };
 
-            var modes = {
-                'display':   render_image,
-                'progress':  render_progress,
-                'error':     render_progress
+            var render_error = function () {
+                return (
+                    <div className="error progress-item" onClick={c.onProgressClicked}>
+                        <p>{s.file_obj.name} {s.file_obj.size}</p>
+                        <p className="text-danger">{s.message}</p>
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-striped progress-bar-danger"
+                                 style={{width: '100%'}}>
+                            </div>
+                        </div>
+                    </div>
+                );
             };
 
+            var content;
+            if (s.mode === 'display' && s.imageInfo.id) {
+                content = render_image();
+            } else if (s.mode === 'display') {
+                content = render_empty();
+            } else if (s.mode === 'preview') {
+                content = render_preview();
+            } else if (s.mode === 'progress') {
+                content = render_progress();
+            } else if (s.mode === 'error') {
+                content = render_error();
+            }
+
             return <div className="rat-image-field">
-                {modes[s.mode]()}
+                {content}
             </div>;
         },
 
@@ -204,7 +284,7 @@ define([
             var c = this,
                 p = this.props;
 
-            this.config = _.extend({
+            c.config = _.extend({
                 src_prefix:        '/store',
                 thumb_name_tpl:    '$id-thumb.$ext',   // <id>-thumb.jpg
                 link_name_tpl:     '$id.$ext',         // <id>.jpg
@@ -214,6 +294,7 @@ define([
                 upload_params:     {},
                 // TODO validation callback
 
+                immediate_upload:  true,
                 thumb_size:        [125, 125],
                 show_del_button:   true,               // show delete button
                 show_link_button:  true                // show "view original" button
@@ -224,10 +305,22 @@ define([
             var c = this;
 
             var $el = $(this.getDOMNode());
+
+            // note: on mobile, mouseover fires when element is touched,
+            // mouseout fires when a different one is touched
+
+            $el.on('mouseover', 'div.image', function() {
+                $('div.buttons', $(this)).show();
+            });
+
+            $el.on('mouseout', 'div.image', function() {
+                $('div.buttons', $(this)).hide();
+            });
         },
 
         onFileSelected: function (e) {
-            var c = this;
+            var c = this,
+                p = this.props;
 
             var file = e.target.files[0],
                 file_obj = {
@@ -236,10 +329,28 @@ define([
                 size: human_readable_file_size(file.size),
                 upload_url: c.config.upload_url,
                 file_param: c.config.file_param || 'file',
-                upload_params: c.config.upload_params
+                upload_params: c.config.upload_params,
+                progress: 0 // TODO!
             };
 
-            console.log('file selected', file);
+            if (c.config.immediate_upload) {
+                c.uploadFile(file_obj);
+            } else {
+                console.log('not immediate upload');
+                c.setState({
+                    mode: 'preview',
+                    file_obj: file_obj,
+                    progress: 0  // ? waiting for upload
+                });
+
+                if (p.onImageSelected) {
+                    p.onImageSelected();
+                }
+            }
+        },
+
+        uploadFile: function (file_obj) {
+            var c = this;
 
             c.setState({
                 mode: 'progress',
@@ -309,6 +420,18 @@ define([
                     file_obj: null
                 });
             }
+        },
+
+        // public API
+        doUpload: function (x) {
+            var c = this,
+                s = this.state;
+
+            console.log('doUpload');
+
+            _.assign(s.file_obj, x);
+            c.setState({file_obj: s.file_obj});
+            c.uploadFile(s.file_obj);
         }
     });
 
