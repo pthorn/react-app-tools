@@ -6,7 +6,9 @@ define([
     './validators.js',
     './bootstrap-widgets.jsx',
     './image-upload.jsx',
-    './utils'
+    './utils',
+    '../css/image-upload.scss',
+    '../css/grid.scss'
 ], function (
     Rest,
     Grid,
@@ -14,9 +16,10 @@ define([
     Validators,
     BootstrapWidgets,
     ImageUpload,
-    Utils
+    Utils,
+    image_upload_scss,
+    grid_scss
 ) {
-
     return {
         Rest:              Rest,
         Grid:              Grid,
