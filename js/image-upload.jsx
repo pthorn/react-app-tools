@@ -263,15 +263,15 @@ define([
             };
 
             var content;
-            if (s.mode === 'display' && s.imageInfo.id) {
+            if (s.mode === modes.DISPLAY && s.imageInfo.id) {
                 content = render_image();
-            } else if (s.mode === 'display') {
+            } else if (s.mode === modes.DISPLAY) {
                 content = render_empty();
-            } else if (s.mode === 'preview') {
+            } else if (s.mode === modes.PREVIEW) {
                 content = render_preview();
-            } else if (s.mode === 'progress') {
+            } else if (s.mode === modes.PROGRESS) {
                 content = render_progress();
-            } else if (s.mode === 'error') {
+            } else if (s.mode === modes.ERROR) {
                 content = render_error();
             }
 
@@ -338,7 +338,7 @@ define([
             } else {
                 console.log('not immediate upload');
                 c.setState({
-                    mode: 'preview',
+                    mode: modes.PREVIEW,
                     file_obj: file_obj,
                     progress: 0  // ? waiting for upload
                 });
@@ -353,7 +353,7 @@ define([
             var c = this;
 
             c.setState({
-                mode: 'progress',
+                mode: modes.PROGRESS,
                 file_obj: file_obj,
                 progress: 0  // ? waiting for upload
             });
@@ -372,7 +372,7 @@ define([
                 uploaded: function (resp, xhr, file_obj, event) {
                     console.log('uploaded', xhr.status, resp);
                     c.setState({
-                        mode: 'display',
+                        mode: modes.DISPLAY,
                         imageInfo: {id: resp.id, ext: resp.ext},
                         file_obj: null
                     });
@@ -394,7 +394,7 @@ define([
                     }
 
                     c.setState({
-                        mode: 'error',
+                        mode: modes.ERROR,
                         message: message
                     });
                 }
@@ -414,9 +414,9 @@ define([
         },
 
         onProgressClicked: function () {
-            if (this.state.mode === 'error') {
+            if (this.state.mode === modes.ERROR) {
                 this.setState({
-                    mode: 'display',
+                    mode: modes.DISPLAY,
                     file_obj: null
                 });
             }
