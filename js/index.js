@@ -1,6 +1,7 @@
 
 define([
     './rest',
+    './data',
     './grid.jsx',
     './form.jsx',
     './validators.js',
@@ -11,6 +12,7 @@ define([
     '../css/grid.scss'
 ], function (
     Rest,
+    Data,
     Grid,
     Form,
     Validators,
@@ -22,6 +24,7 @@ define([
 ) {
     return {
         Rest:              Rest,
+        Data:              Data,
         Grid:              Grid,
         Form:              Form,
         Validators:        Validators,
