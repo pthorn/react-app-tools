@@ -1,0 +1,60 @@
+
+.clickable {
+    cursor: pointer;
+}
+
+div.rat-grid {
+
+    div.filters {
+        margin-bottom: 8px;
+    }
+
+    table.table {
+        margin-bottom: 0;
+        max-width: none;
+
+        thead th.order {
+            position: relative;
+            cursor: pointer;
+
+            &:after {
+                content: "";
+                position: absolute;
+                top: 3px;
+                right: 1px;
+                width: 19px;
+                height: 19px;
+                background: url("../images/grid-sprite.png") no-repeat;
+            }
+
+            &.disabled {
+                cursor: inherit;
+            }
+
+            &.enabled:after {
+                background-position: 0 -38px;
+            }
+
+            &.asc:after {
+                background-position: 0 0;
+            }
+
+            &.desc:after {
+                background-position: 0 -19px;
+            }
+
+            &.disabled:after {
+                background-position: 0 -100px;
+                cursor: inherit;
+            }
+        }
+    }
+
+    ul.pagination a {
+        cursor: pointer;
+    }
+
+    div.page-nav div.info {
+        padding: 20px 0;
+    }
+}
