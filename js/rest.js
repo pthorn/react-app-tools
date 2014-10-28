@@ -9,15 +9,24 @@ define([
     RSVP,
     EventEmitter
 ) {
+
+    /**
+     * config:
+     *   url_prefix:  default '/rest/', could be '//rest.me.com/api/'
+     *
+     * events:
+     *   'rest-error'
+     *   'http-error-401'
+     *   'http-error-403'
+     *   'http-error'      http status is 4xx or 5xx but not 401 or 403
+     *   'start-request'
+     *   'end-request'
+     */
     var Rest = function (config_) {
+        var self = this;
 
         var config = $.extend({
-            url_prefix: '/rest/',    // could be '//rest.me.com/api/'
-            on_invalid: null,
-            on_rest_error: null,       // when not {status: 'ok'}
-            on_http_error_401: null,       // when
-            on_http_error_403: null,       // when
-            on_http_error: null        // http status is 4xx or 5xx but not 401 or 403
+            url_prefix:       '/rest/'
         }, config_ || {});
 
         if (config.url_prefix.indexOf('/', this.length - 1) === -1) {
@@ -41,13 +50,26 @@ define([
                         if (json.status == 'ok') {
                             resolve(json);
                         } else {
-                            var handler = json.status == 'invalid' ? config.on_invalid : config.on_rest_error;
-                            handler && handler(json, status, headers, config_);
+                            if (json.status == 'invalid') {
+                                self.emit('invalid', json);
+                            } else {
+                                self.emit('rest-error', json);
+                            }
+
+                            // TODO arguments
                             reject(json);
                         }
                     },
 
                     error: function (jqXhr, textStatus, errorThrown) {
+                        if (jqXhr.status == 401) {
+                            self.emit('http-error-401', jqXhr);
+                        } else if  (jqXhr.status == 403) {
+                            self.emit('http-error-403', jqXhr);
+                        } else {
+                            self.emit('http-error', jqXhr);
+                        }
+
                         reject({
                             jqXhr: jqXhr,
                             textStatus: textStatus,
