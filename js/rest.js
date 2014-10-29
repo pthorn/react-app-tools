@@ -33,6 +33,8 @@ define([
             config.url_prefix = config.url_prefix + '/';
         }
 
+        var requests_in_progress = 0;
+
         this.request = function (opts) {
 
             var defaultOpts = {
@@ -45,8 +47,16 @@ define([
             }
 
             return new RSVP.Promise(function (resolve, reject) {
+                if (requests_in_progress++ == 0) {
+                    self.emit('start-request');
+                }
+
                 $.ajax($.extend({}, defaultOpts, opts, {
                     success: function (json) {
+                        if (--requests_in_progress == 0) {
+                            self.emit('end-request');
+                        }
+
                         if (json.status == 'ok') {
                             resolve(json);
                         } else {
@@ -62,6 +72,10 @@ define([
                     },
 
                     error: function (jqXhr, textStatus, errorThrown) {
+                        if (--requests_in_progress == 0) {
+                            self.emit('end-request');
+                        }
+
                         if (jqXhr.status == 401) {
                             self.emit('http-error-401', jqXhr);
                         } else if  (jqXhr.status == 403) {
