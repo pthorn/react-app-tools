@@ -14,6 +14,10 @@ define([
      * config:
      *   url_prefix:  default '/rest/', could be '//rest.me.com/api/'
      *
+     * then argument: json response
+     *
+     * catch argument: {reason: 'string', json|xhr: ...}
+     *
      * events:
      *   'rest-error'
      *   'http-error-401'
@@ -60,14 +64,16 @@ define([
                         if (json.status == 'ok') {
                             resolve(json);
                         } else {
+                            var reason;
                             if (json.status == 'invalid') {
+                                reason = 'invalid';
                                 self.emit('invalid', json);
                             } else {
+                                reason = 'rest-error';
                                 self.emit('rest-error', json);
                             }
 
-                            // TODO arguments
-                            reject(json);
+                            reject({reason: reason, json: json});
                         }
                     },
 
@@ -76,19 +82,20 @@ define([
                             self.emit('end-request');
                         }
 
+                        var reason;
+
                         if (jqXhr.status == 401) {
+                            reason = 'http-error-401';
                             self.emit('http-error-401', jqXhr);
                         } else if  (jqXhr.status == 403) {
+                            reason = 'http-error-403';
                             self.emit('http-error-403', jqXhr);
                         } else {
+                            reason = 'http-error';
                             self.emit('http-error', jqXhr);
                         }
 
-                        reject({
-                            jqXhr: jqXhr,
-                            textStatus: textStatus,
-                            errorThrown: errorThrown
-                        });
+                        reject({reason: reason, xhr: jqXhr});
                     }
                 }));
             });
