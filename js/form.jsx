@@ -323,6 +323,27 @@ define([
     });
 
 
+    var StaticGroup = React.createClass({
+        propTypes: {
+            label:    React.PropTypes.string
+        },
+
+        render: function() {
+            var c = this,
+                p = this.props;
+
+            return <div className="form-group">
+                <label className="col-md-3 control-label">{p.label}</label>
+                <div className="col-md-9">
+                    <p className="form-control-static">
+                        {p.children}
+                    </p>
+                </div>
+            </div>;
+        }
+    });
+
+
     // TODO:
     // value (<input>, <textarea>), checked (<input type="checkbox|radio">), selected (<option>)
     // TODO select multiple
@@ -573,6 +594,7 @@ define([
         FormMixin:         FormMixin,
         AdminFormMixin:    AdminFormMixin,
         FormGroup:         FormGroup,
+        StaticGroup:       StaticGroup,
         TextInput:         TextInput,
         Checkbox:          Checkbox,
         RadioList:         RadioList,
