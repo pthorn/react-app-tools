@@ -101,6 +101,8 @@ define([
             });
         };
 
+        // CRUD methods
+
         this.getList = function (entity, params) {
             var url = config.url_prefix + entity;
 
@@ -187,6 +189,32 @@ define([
             return this.request({
                 url: url,
                 method: 'DElETE'
+            });
+        };
+
+        // low level methods
+
+        this.get = function (url, data) {
+            return this.request({
+                url: url,
+                method: 'GET',
+                data: data
+            });
+        };
+
+        this.post = function (url, data) {
+            return this.request({
+                url: url,
+                method: 'POST',
+                data: data
+            });
+        };
+
+        this.put = function (url, data) {
+            return this.request({
+                url: url,
+                method: 'PUT',
+                data: data
             });
         };
     };
