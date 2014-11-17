@@ -134,7 +134,7 @@ define([
                             <a className="prev" onClick={c.onClickPrevious}>&lt;</a>
                         </li>
                         {list_of_pages().map(function (page) {
-                            return <li className={cx({active: page == store.getCurrentPageNumber()})}>
+                            return <li key={page} className={cx({active: page == store.getCurrentPageNumber()})}>
                                 <a onClick={c.onClickPage.bind(null, page)}>{page}</a>
                             </li>;
                         })}
