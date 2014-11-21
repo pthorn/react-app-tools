@@ -55,7 +55,6 @@ define([
         // build and send request with form data
 
         xhr.open('POST', file_obj.upload_url);
-        xhr.overrideMimeType('text/plain; charset=x-user-defined-binary'); // ?
 
         var form_data = new FormData();
 
