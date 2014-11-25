@@ -47,7 +47,7 @@ define([
             var c = this,
                 p = this.props,
                 store = p.config.store,
-                col_config = this.props.col_config;
+                col_config = p.col_config;
 
             var key = col_config.sort_key || col_config.key;
 
@@ -151,7 +151,7 @@ define([
                         <span>
                             Страница {store.getCurrentPageNumber()}/{store.getTotalPages()},
                             строки {store.getFirstRowNumber()}/{store.getLastRowNumber()}
-                            из {store.getTotalRows()}
+                            {' '} из {store.getTotalRows()}
                         </span>
                     }
                     {store.getTotalRows() == 0 &&
@@ -178,7 +178,7 @@ define([
 
         onClickLast: function () {
             var store = this.props.config.store;
-            //
+            store.requestPage(store.getTotalPages());
         },
 
         onClickPage: function (page_n) {
@@ -187,7 +187,18 @@ define([
         }
     });
 
-
+    /**
+     * config: {
+     *   store: new PagedStore({rest: rest, entity: 'foo'}),
+     *   columns: [{
+     *     key: '',
+     *     sort_key: '',
+     *     label: '',
+     *     template: React.createClass({})
+     *   }],
+     *   default_order: {key: '', dir: ''}
+     * }
+     */
     var Grid = React.createClass({
         propTypes: {
             config: React.PropTypes.object
@@ -195,8 +206,7 @@ define([
 
         getDefaultProps: function () {
             return {
-                config: {},
-                data: []
+                config: {}
             };
         },
 
@@ -248,8 +258,21 @@ define([
         },
 
         componentWillMount: function () {
-            this.props.config.store.on('page-loaded', this.onPageLoaded);
-            this.props.config.store.requestPage(1, true);
+            var c = this,
+                p = this.props,
+                store = p.config.store;
+
+            if (!store) {
+                throw new Error('no store supplied to grid');
+            }
+
+            store.on('page-loaded', this.onPageLoaded);
+
+            if (p.config.default_order) {
+                store.setOrder(p.config.default_order.key, p.config.default_order.dir);
+            }
+
+            p.config.store.requestPage(1, true);
         },
 
         componentWillUnmount: function () {
