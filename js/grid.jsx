@@ -73,7 +73,16 @@ define([
                 p = this.props;
 
             var col_config = p.col_config,
-                val = col_config.key ? p.row[col_config.key] : null;
+                key = col_config.key;
+
+            // key is a string or a list of strings: 'a' -> val = row.a; ['a', 'b'] -> val = row.a.b
+            var val = null;
+            if (_.isString(key)) {
+                val = p.row[key];
+            } else {
+                val = p.row;
+                _.each(key, el => val = val[el]);
+            }
 
             if (col_config.template) {
                 return <td>
@@ -187,11 +196,12 @@ define([
         }
     });
 
+
     /**
      * config: {
      *   store: new PagedStore({rest: rest, entity: 'foo'}),
      *   columns: [{
-     *     key: '',
+     *     key: 'foo' | ['foo', 'bar'],  //  'a' -> val = row.a; ['a', 'b'] -> val = row.a.b
      *     sort_key: '',
      *     label: '',
      *     template: React.createClass({})
