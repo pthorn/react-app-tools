@@ -297,7 +297,22 @@ define([
     });
 
 
+    /**
+     * columns: [{key: 'foo', template: Grid.template((val, row) => <a href={row.id}>{val}</a>)}]
+     */
+    var template = function (render) {
+        return React.createClass({
+            render: function () {
+                var c = this,
+                    p = this.props;
+
+                return render(p.val, p.row, p.col_config, p.grid);
+            }
+        });
+    };
+
     return {
-        Grid: Grid
+        Grid: Grid,
+        template: template
     };
 });
