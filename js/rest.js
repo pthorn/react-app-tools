@@ -217,6 +217,14 @@ define([
                 data: data
             });
         };
+
+        this.del = function (url, data) {
+            return this.request({
+                url: url,
+                method: 'DELETE',
+                data: data
+            });
+        };
     };
 
     _.extend(Rest.prototype, EventEmitter.prototype);
