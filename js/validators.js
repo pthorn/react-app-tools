@@ -16,8 +16,12 @@ define([
             msg = t("Field is required");
         }
 
+        var is_empty = function(value) {
+            return _.isUndefined(value) || value === '' || value === null || value !== value;
+        };
+
         return function (model, key, val, fail) {
-            if (_.isEmpty(val)) {
+            if (is_empty(val)) {
                 fail(key, msg);
             }
         };
