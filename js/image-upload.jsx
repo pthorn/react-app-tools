@@ -236,7 +236,6 @@ define([
                 return (
                     <div className="progress-item" onClick={c.onProgressClicked}>
                         <p>{s.file_obj.name} {s.file_obj.size}</p>
-                        {s.mode === 'error' && <p className="text-danger">{s.message}</p>}
                         <div className="progress">
                             <div className={progress_bar_classes} style={{width: s.progress + '%'}}>
                                 {s.progress + '%'}
