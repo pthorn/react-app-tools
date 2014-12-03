@@ -134,6 +134,12 @@ define([
             return this.state.errors[key];
         },
 
+        getFieldValue: function (key) {
+            var s = this.state;
+
+            return s.model[key];
+        },
+
         onFieldValueChanged: function (key, value) {
             //console.log('Form.onFieldValueChanged(): ', key, value);
 
@@ -354,6 +360,12 @@ define([
     };
 
 
+    /**
+     * form: {
+     *   getFieldValue(name) - get value
+     *   onFieldValueChanged(name, value) - set new value
+     * }
+     */
     var TextInput = React.createClass({
         propTypes: {
             form:     React.PropTypes.object.isRequired,
@@ -384,7 +396,7 @@ define([
             var cx = React.addons.classSet;
 
             // TODO serialize value
-            var value = form.state.model[name] || '';
+            var value = form.getFieldValue(name) || '';
 
             // TODO class, style, placeholder etc.!
             return (
@@ -565,7 +577,7 @@ define([
                 options = this.props.options;
 
             // TODO serialize value
-            var value = form.state.model[name] || '';
+            var value = form.getFieldValue(name) || '';
 
             var options_html = options.map(function (option) {
                 return <option value={option.val}>{option.label}</option>;
