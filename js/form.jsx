@@ -6,11 +6,15 @@
  */
 define([
     'lodash',
-    'react'
+    'react',
+    './utils'
 ], function (
     lodash,
-    React
+    React,
+    Utils
 ) {
+   var { showNotification } = Utils;
+
     /** TODO not yet ready
      *  - call into form for onSubmit etc.
      *  - implement 'submitting' state
@@ -174,7 +178,7 @@ define([
 
             if (!this.validate()) {
                 console.log('invalid', s.errors);
-                c.showNotification('Ошибки в форме', undefined, 'warning');  // TODO list errors!
+                showNotification('Ошибки в форме', undefined, 'warning');  // TODO list errors!
                 return;
             }
 
@@ -230,7 +234,7 @@ define([
                 }).catch(function (error) {
                     console.log('loadEntity error:', error);
                     if (error.reason == 'rest-error') {
-                        c.showNotification('Ошибка', JSON.stringify(error.json), 'error');  // TODO
+                        showNotification('Ошибка', JSON.stringify(error.json), 'error');  // TODO
                     }
                 });
             }
@@ -252,14 +256,14 @@ define([
             }
 
             promise.then(function (data) {
-                c.showNotification('Объект сохранен', '', 'success');
+                showNotification('Объект сохранен', '', 'success');
                 c.onSaved && c.onSaved(data);   // TODO
             }).catch(function (error) {
                 if (error.reason == 'invalid') {
-                    c.showNotification('Ошибки валидации', JSON.stringify(error.json), 'warning');  // TODO
+                    showNotification('Ошибки валидации', JSON.stringify(error.json), 'warning');  // TODO
                     c.addServerValidationErrors(error.json.errors);
                 } else if (error.reason == 'rest-error') {
-                    c.showNotification('Ошибка', JSON.stringify(error.json), 'error');  // TODO
+                    showNotification('Ошибка', JSON.stringify(error.json), 'error');  // TODO
                 }
             });
         },
