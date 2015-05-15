@@ -7,7 +7,8 @@ define([
     './validators.js',
     './bootstrap-widgets.jsx',
     './image-upload.jsx',
-    './utils',
+    './utils/index.js',
+
     '../css/image-upload.scss',
     '../css/grid.scss'
 ], function (
