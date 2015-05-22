@@ -124,15 +124,14 @@ var Grid = React.createClass({
             p = this.props,
             s = this.state;
 
-        var i = 0;
-        var rows = s.rows.map(function (row) {
-            var cells = p.config.columns.map(function (col_config) {
-                return <Cell grid={c} col_config={col_config} row={row} />;
+        var rows = s.rows.map(function (row, i) {
+            var cells = p.config.columns.map(function (col_config, j) {
+                return <Cell key={j} grid={c} col_config={col_config} row={row} />;
             });
 
-            var tr = <tr key={i} className={cx({even: i%2==0, odd: i%2!=0})}>{cells}</tr>;
-            ++i;
-            return tr;
+            return <tr key={i} className={cx({even: i%2==0, odd: i%2!=0})}>
+                {cells}
+            </tr>;
         });
 
         return (
@@ -140,8 +139,9 @@ var Grid = React.createClass({
                 <table className="table table-condensed table-hover">
                     <thead>
                         <tr>
-                            {p.config.columns.map(function (col) {
+                            {p.config.columns.map(function (col, i) {
                                 return <ColumnHeader
+                                  key={i}
                                   col_config={col}
                                   config={p.config} />;
                             })}
