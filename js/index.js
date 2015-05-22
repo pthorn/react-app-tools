@@ -2,7 +2,7 @@
 define([
     './rest',
     './data',
-    './grid.jsx',
+    './grid/index.js',
     './form.jsx',
     './validators.js',
     './bootstrap-widgets.jsx',
