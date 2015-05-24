@@ -27,6 +27,7 @@ define([
         this.order_column = null;
         this.order_direction = 'asc';
         this.filters = {};
+        this.search = '';
     };
 
     _.extend(PagedStore.prototype, EventEmitter.prototype);
@@ -80,6 +81,15 @@ define([
         this.requestPage(1, true);
     };
 
+    PagedStore.prototype.getSearch = function () {
+        return this.search;
+    };
+
+    PagedStore.prototype.setSearch = function (val) {
+        this.search = val;
+        this.requestPage(1, true);
+    };
+
     PagedStore.prototype.getOrderColumn = function () {
         return this.order_column;
     };
@@ -125,8 +135,8 @@ define([
             start: (self.current_page - 1) * self.config.rows_per_page,
             limit: self.config.rows_per_page,
             order: {dir: self.order_direction, col: self.order_column},
-            //search: self.search,
-            filters: _.extend({}, self.config.fixed_filters, self.filters)
+            filters: _.extend({}, self.config.fixed_filters, self.filters),
+            search: self.search
         }).then(function (data) {
             self.rows = data.data;
             self.total_rows = data.count;
