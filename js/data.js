@@ -18,7 +18,7 @@ define([
         this.config = _.extend({
             entity: null,
             rows_per_page: 25,
-            fixed_filters: []
+            fixed_filters: {}
         }, config_);
 
         this.rows = [];
@@ -26,6 +26,7 @@ define([
         this.total_rows = 0;
         this.order_column = null;
         this.order_direction = 'asc';
+        this.filters = {};
     };
 
     _.extend(PagedStore.prototype, EventEmitter.prototype);
@@ -36,10 +37,6 @@ define([
 
     PagedStore.prototype.setRowsPerPage = function (n) {
         this.config.rows_per_page = n;
-    };
-
-    PagedStore.prototype.setFilters = function (xxxx) {
-        // TODO
     };
 
     PagedStore.prototype.getTotalRows = function () {
@@ -66,6 +63,21 @@ define([
         }
 
         return last_row;
+    };
+
+    PagedStore.prototype.setFilter = function (key, val, op) {
+        if (_.isUndefined(op)) {
+            this.filters[key] = val;
+        } else {
+            this.filters[key] = [op, val];
+        }
+
+        this.requestPage(1, true);
+    };
+
+    PagedStore.prototype.clearFilter = function (key) {
+        delete this.filters[key];
+        this.requestPage(1, true);
     };
 
     PagedStore.prototype.getOrderColumn = function () {
@@ -112,10 +124,9 @@ define([
         this.config.rest.getList(this.config.entity, {
             start: (self.current_page - 1) * self.config.rows_per_page,
             limit: self.config.rows_per_page,
-            order: {dir: self.order_direction, col: self.order_column}//,
-            // TODO search and filters
+            order: {dir: self.order_direction, col: self.order_column},
             //search: self.search,
-            //filters: self.selected_filters
+            filters: _.extend({}, self.config.fixed_filters, self.filters)
         }).then(function (data) {
             self.rows = data.data;
             self.total_rows = data.count;

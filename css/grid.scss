@@ -7,6 +7,20 @@ div.rat-grid {
 
     div.filters {
         margin-bottom: 8px;
+
+        .filter-item {
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 8px;
+        }
+
+        .input-group {
+            max-width: 250px;  // ???
+        }
+
+        .form-control {
+            width: auto;  // override bootstrap
+        }
     }
 
     table.table {

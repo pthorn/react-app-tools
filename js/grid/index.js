@@ -135,7 +135,7 @@ var Grid = React.createClass({
         });
 
         return (
-            <div className="rat-grid">
+            <div>
                 <table className="table table-condensed table-hover">
                     <thead>
                         <tr>
@@ -204,7 +204,9 @@ var template = function (render) {
     });
 };
 
+
 module.exports = {
     Grid: Grid,
-    template: template
+    template: template,
+    Filters: require('./filters')
 };
