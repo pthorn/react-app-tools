@@ -116,18 +116,10 @@ define([
                 qs.l = params.limit;
             }
 
-            if (params.order) {
-                var col, dir;
-
-                if (typeof params.order === 'string') {
-                    col = params.order;
-                    dir = 'asc';
-                } else {
-                    col = params.order.col;
-                    dir = params.order.dir;
-                }
-
-                qs.o = (dir == 'desc' ? '-' : '') + col;
+            if (_.isString(params.order)) {
+                qs.o = params.order;
+            } else if (_.isObject(params.order) && params.order.col) {
+                qs.o = (params.order.dir == 'desc' ? '-' : '') + params.order.col;
             }
 
             if (params.search) {
