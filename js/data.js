@@ -18,14 +18,16 @@ define([
         this.config = _.extend({
             entity: null,
             rows_per_page: 25,
+            order_col: null,
+            order_dir: 'asc',
             fixed_filters: {}
         }, config_);
 
         this.rows = [];
         this.current_page = 1;
         this.total_rows = 0;
-        this.order_column = null;
-        this.order_direction = 'asc';
+        this.order_col = this.config.order_col;
+        this.order_dir = this.config.order_dir;
         this.filters = {};
         this.search = '';
     };
@@ -91,16 +93,16 @@ define([
     };
 
     PagedStore.prototype.getOrderColumn = function () {
-        return this.order_column;
+        return this.order_col;
     };
 
     PagedStore.prototype.getOrderDirection = function () {
-        return this.order_direction;
+        return this.order_dir;
     };
 
     PagedStore.prototype.setOrder = function (column, direction) {
-        this.order_column = column;
-        this.order_direction = direction;
+        this.order_col = column;
+        this.order_dir = direction;
         this.requestPage(1, true);
     };
 
@@ -134,7 +136,7 @@ define([
         this.config.rest.getList(this.config.entity, {
             start: (self.current_page - 1) * self.config.rows_per_page,
             limit: self.config.rows_per_page,
-            order: {dir: self.order_direction, col: self.order_column},
+            order: {col: self.order_col, dir: self.order_dir},
             filters: _.extend({}, self.config.fixed_filters, self.filters),
             search: self.search
         }).then(function (data) {

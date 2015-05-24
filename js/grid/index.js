@@ -171,10 +171,6 @@ var Grid = React.createClass({
 
         store.on('page-loaded', this.onPageLoaded);
 
-        if (p.config.default_order) {
-            store.setOrder(p.config.default_order.key, p.config.default_order.dir);
-        }
-
         p.config.store.requestPage(1, true);
     },
 
