@@ -145,6 +145,9 @@ var Grid = React.createClass({
                         {rows}
                     </tbody>
                 </table>
+                {s.rows.length === 0 &&
+                    <p className="no-data">Нет данных</p>
+                }
             </div>
         );
     },
