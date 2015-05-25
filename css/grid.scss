@@ -3,9 +3,10 @@
     cursor: pointer;
 }
 
+
 div.rat-grid {
 
-    div.filters {
+    div.panel-heading, div.filters {
         margin-bottom: 8px;
 
         .filter-item {
@@ -21,6 +22,10 @@ div.rat-grid {
         .form-control {
             width: auto;  // override bootstrap
         }
+    }
+
+    div.panel-body {
+        padding: 0;  // override bootstrap
     }
 
     table.table {
@@ -64,11 +69,27 @@ div.rat-grid {
         }
     }
 
-    ul.pagination a {
-        cursor: pointer;
+    p.no-data {
+        margin: 20px 0;
+        text-align: center;
     }
 
-    div.page-nav div.info {
-        padding: 20px 0;
+    div.page-nav {
+
+        ul.pagination {  // override bootstrap
+            margin: 6px 0 0 0;
+
+            a {
+                cursor: pointer;
+            }
+
+            &>li>a, &>li>span {
+                float: none;
+            }
+        }
+
+        div.info {
+            margin-top: 5px;
+        }
     }
 }

@@ -186,6 +186,30 @@ var Grid = React.createClass({
 });
 
 
+var GridBlock = React.createClass({
+    propTypes: {
+        config: React.PropTypes.object.isRequired
+    },
+
+    render: function () {
+       var c = this,
+           { config, children } = this.props;
+
+        return <div className="panel panel-default rat-grid">
+            <div className="panel-heading filters">
+                {children}
+            </div>
+            <div className="panel-body">
+                <Grid config={config} />
+            </div>
+            <div className="panel-footer clearfix">
+                <Pagination config={config} />
+            </div>
+        </div>;
+    }
+});
+
+
 /**
  * columns: [{key: 'foo', template: Grid.template((val, row) => <a href={row.id}>{val}</a>)}]
  */
@@ -202,6 +226,7 @@ var template = function (render) {
 
 
 module.exports = {
+    GridBlock: GridBlock,
     Grid: Grid,
     template: template,
     Filters: require('./filters')
