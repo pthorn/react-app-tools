@@ -104,13 +104,7 @@ var Cell = React.createClass({
  */
 var Grid = React.createClass({
     propTypes: {
-        config: React.PropTypes.object
-    },
-
-    getDefaultProps: function () {
-        return {
-            config: {}
-        };
+        config: React.PropTypes.object.isRequired
     },
 
     getInitialState: function () {
@@ -121,11 +115,11 @@ var Grid = React.createClass({
 
     render: function () {
         var c = this,
-            p = this.props,
+            { config } = this.props,
             s = this.state;
 
         var rows = s.rows.map(function (row, i) {
-            var cells = p.config.columns.map(function (col_config, j) {
+            var cells = config.columns.map(function (col_config, j) {
                 return <Cell key={j} grid={c} col_config={col_config} row={row} />;
             });
 
@@ -139,11 +133,11 @@ var Grid = React.createClass({
                 <table className="table table-condensed table-hover">
                     <thead>
                         <tr>
-                            {p.config.columns.map(function (col, i) {
+                            {config.columns.map(function (col, i) {
                                 return <ColumnHeader
                                   key={i}
                                   col_config={col}
-                                  config={p.config} />;
+                                  config={config} />;
                             })}
                         </tr>
                     </thead>
@@ -155,26 +149,27 @@ var Grid = React.createClass({
         );
     },
 
-    onPageLoaded: function () {
-        this.setState({rows: this.props.config.store.getRows()});
-    },
-
     componentWillMount: function () {
         var c = this,
             p = this.props,
             store = p.config.store;
 
         if (!store) {
-            throw new Error('no store supplied to grid');
+            throw new Error('no store supplied to Grid');
         }
 
+        this.onPageLoaded = () => this.setState({rows: store.getRows()});
         store.on('page-loaded', this.onPageLoaded);
 
-        p.config.store.requestPage(1, true);
+        store.requestPage(1, true);
     },
 
     componentWillUnmount: function () {
-        this.props.config.store.off('page-loaded', this.onPageLoaded);
+        var c = this,
+            p = this.props,
+            store = p.config.store;
+
+        store.off('page-loaded', this.onPageLoaded);
     },
 
     // public API (also for cells)
