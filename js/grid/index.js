@@ -135,7 +135,7 @@ var Grid = React.createClass({
         });
 
         return (
-            <div>
+            <div className="table-responsive">
                 <table className="table table-condensed table-hover">
                     <thead>
                         <tr>
