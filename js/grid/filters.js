@@ -11,7 +11,7 @@ var ENTER = 13;
 var Search = React.createClass({
     propTypes: {
         config: React.PropTypes.object.isRequired,
-        label: React.PropTypes.string.isRequired
+        label: React.PropTypes.string
     },
 
     getInitialState: function () {
@@ -25,6 +25,8 @@ var Search = React.createClass({
             p = this.props,
             { label } = this.props,
             s = this.state;
+
+        label = _.isUndefined(label) ? 'Search' : label;
 
         return <span className="filter-item">
 
