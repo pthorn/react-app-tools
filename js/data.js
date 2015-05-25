@@ -88,8 +88,10 @@ define([
     };
 
     PagedStore.prototype.setSearch = function (val) {
-        this.search = val;
-        this.requestPage(1, true);
+        if (this.search !== val) {
+            this.search = val;
+            this.requestPage(1, true);
+        }
     };
 
     PagedStore.prototype.getOrderColumn = function () {
