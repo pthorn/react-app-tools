@@ -151,7 +151,6 @@ var Grid = React.createClass({
                         {rows}
                     </tbody>
                 </table>
-                <Pagination config={p.config} />
             </div>
         );
     },
