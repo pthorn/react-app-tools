@@ -28,7 +28,7 @@ var Search = React.createClass({
 
         return <span className="filter-item">
 
-            <div className="input-group">
+            <div className="input-group input-group-sm">
                 <input type="text"
                        className="form-control"
                        value={s.value}
@@ -116,7 +116,7 @@ var Select = React.createClass({
         );
 
         return <span className="filter-item">
-            <select className="form-control"
+            <select className="form-control input-sm"
                     value={s.value}
                     onChange={c.onChange}>
                 {options_html}
