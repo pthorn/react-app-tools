@@ -35,10 +35,14 @@ exports.Pagination = React.createClass({
             <div className="col-xs-6">
                 <ul className="pagination">
                     <li className={cx({disabled: store.getCurrentPageNumber() == 1})}>
-                        <a className="first" onClick={c.onClickFirst}>&laquo;</a>
+                        <a className="first" onClick={c.onClickFirst}>
+                            <i className="glyphicon glyphicon-step-backward"/>
+                        </a>
                     </li>
                     <li className={cx({disabled: store.getCurrentPageNumber() == 1})}>
-                        <a className="prev" onClick={c.onClickPrevious}>&lt;</a>
+                        <a className="prev" onClick={c.onClickPrevious}>
+                            <i className="glyphicon glyphicon-chevron-left"/>
+                        </a>
                     </li>
                     {list_of_pages().map(function (page) {
                         return <li key={page} className={cx({active: page == store.getCurrentPageNumber()})}>
@@ -46,10 +50,14 @@ exports.Pagination = React.createClass({
                         </li>;
                     })}
                     <li className={cx({disabled: store.getCurrentPageNumber() == store.getTotalPages()})}>
-                        <a className="next" onClick={c.onClickNext}>&gt;</a>
+                        <a className="next" onClick={c.onClickNext}>
+                            <i className="glyphicon glyphicon-chevron-right"/>
+                        </a>
                     </li>
                     <li className={cx({disabled: store.getCurrentPageNumber() == store.getTotalPages()})}>
-                        <a className="last" onClick={c.onClickLast}>&raquo;</a>
+                        <a className="last" onClick={c.onClickLast}>
+                            <i className="glyphicon glyphicon-step-forward"/>
+                        </a>
                     </li>
                 </ul>
             </div>
