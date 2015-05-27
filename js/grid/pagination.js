@@ -31,48 +31,43 @@ exports.Pagination = React.createClass({
             return pages;
         };
 
-        return <div className="page-nav row">
-            <div className="col-xs-6">
-                <ul className="pagination">
-                    <li className={cx({disabled: store.getCurrentPageNumber() == 1})}>
-                        <a className="first" onClick={c.onClickFirst}>
-                            <i className="glyphicon glyphicon-step-backward"/>
-                        </a>
-                    </li>
-                    <li className={cx({disabled: store.getCurrentPageNumber() == 1})}>
-                        <a className="prev" onClick={c.onClickPrevious}>
-                            <i className="glyphicon glyphicon-chevron-left"/>
-                        </a>
-                    </li>
-                    {list_of_pages().map(function (page) {
-                        return <li key={page} className={cx({active: page == store.getCurrentPageNumber()})}>
-                            <a onClick={c.onClickPage.bind(null, page)}>{page}</a>
-                        </li>;
-                    })}
-                    <li className={cx({disabled: store.getCurrentPageNumber() == store.getTotalPages()})}>
-                        <a className="next" onClick={c.onClickNext}>
-                            <i className="glyphicon glyphicon-chevron-right"/>
-                        </a>
-                    </li>
-                    <li className={cx({disabled: store.getCurrentPageNumber() == store.getTotalPages()})}>
-                        <a className="last" onClick={c.onClickLast}>
-                            <i className="glyphicon glyphicon-step-forward"/>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div className="col-xs-6 info">
-                {store.getTotalRows() > 0 &&
+        return <div className="page-nav">
+            {store.getTotalRows() > 0 &&
+                <div className="pull-right info">
                     <span>
                         Страница {store.getCurrentPageNumber()}/{store.getTotalPages()},
                         строки {store.getFirstRowNumber()}/{store.getLastRowNumber()}
                         {' '} из {store.getTotalRows()}
                     </span>
-                }
-                {store.getTotalRows() == 0 &&
-                    <span>Нет данных.</span>
-                }
-            </div>
+                </div>
+            }
+            <ul className="pagination">
+                <li className={cx({disabled: store.getCurrentPageNumber() == 1})}>
+                    <a className="first" onClick={c.onClickFirst}>
+                        <i className="glyphicon glyphicon-step-backward"/>
+                    </a>
+                </li>
+                <li className={cx({disabled: store.getCurrentPageNumber() == 1})}>
+                    <a className="prev" onClick={c.onClickPrevious}>
+                        <i className="glyphicon glyphicon-chevron-left"/>
+                    </a>
+                </li>
+                {list_of_pages().map(function (page) {
+                    return <li key={page} className={cx({active: page == store.getCurrentPageNumber()})}>
+                        <a onClick={c.onClickPage.bind(null, page)}>{page}</a>
+                    </li>;
+                })}
+                <li className={cx({disabled: store.getCurrentPageNumber() == store.getTotalPages()})}>
+                    <a className="next" onClick={c.onClickNext}>
+                        <i className="glyphicon glyphicon-chevron-right"/>
+                    </a>
+                </li>
+                <li className={cx({disabled: store.getCurrentPageNumber() == store.getTotalPages()})}>
+                    <a className="last" onClick={c.onClickLast}>
+                        <i className="glyphicon glyphicon-step-forward"/>
+                    </a>
+                </li>
+            </ul>
         </div>;
     },
 
