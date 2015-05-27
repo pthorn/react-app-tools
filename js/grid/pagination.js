@@ -68,6 +68,11 @@ exports.Pagination = React.createClass({
                     </a>
                 </li>
             </ul>
+            &nbsp;
+            <button className="btn btn-default btn-sm"
+                    onClick={c.onClickRefresh}>
+                <i className="glyphicon glyphicon-refresh"/>
+            </button>
         </div>;
     },
 
@@ -94,5 +99,10 @@ exports.Pagination = React.createClass({
     onClickPage: function (page_n) {
         var store = this.props.config.store;
         store.requestPage(page_n);
+    },
+
+    onClickRefresh: function () {
+        var { config } = this.props;
+        config.store.refresh();
     }
 });

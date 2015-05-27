@@ -129,6 +129,10 @@ define([
         }
     };
 
+    PagedStore.prototype.refresh = function () {
+        this._request();
+    };
+
     PagedStore.prototype._request = function () {
         var self = this;
 
