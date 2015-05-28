@@ -107,18 +107,13 @@ var Grid = React.createClass({
         config: React.PropTypes.object.isRequired
     },
 
-    getInitialState: function () {
-        return {
-            rows: []
-        }
-    },
-
     render: function () {
         var c = this,
-            { config } = this.props,
-            s = this.state;
+            { config } = this.props;
 
-        var rows = s.rows.map(function (row, i) {
+        var rows = config.store.getRows();
+
+        var rows_html = rows.map(function (row, i) {
             var cells = config.columns.map(function (col_config, j) {
                 return <Cell key={j} grid={c} col_config={col_config} row={row} />;
             });
@@ -142,37 +137,14 @@ var Grid = React.createClass({
                         </tr>
                     </thead>
                     <tbody>
-                        {rows}
+                        {rows_html}
                     </tbody>
                 </table>
-                {s.rows.length === 0 &&
+                {rows.length === 0 &&
                     <p className="no-data">Нет данных</p>
                 }
             </div>
         );
-    },
-
-    componentWillMount: function () {
-        var c = this,
-            p = this.props,
-            store = p.config.store;
-
-        if (!store) {
-            throw new Error('no store supplied to Grid');
-        }
-
-        this.onPageLoaded = () => this.setState({rows: store.getRows()});
-        store.on('page-loaded', this.onPageLoaded);
-
-        store.requestPage(1, true);
-    },
-
-    componentWillUnmount: function () {
-        var c = this,
-            p = this.props,
-            store = p.config.store;
-
-        store.off('page-loaded', this.onPageLoaded);
     },
 
     // public API (also for cells)
@@ -186,6 +158,12 @@ var Grid = React.createClass({
 var GridBlock = React.createClass({
     propTypes: {
         config: React.PropTypes.object.isRequired
+    },
+
+    getInitialState: function () {
+        return {
+            store: null
+        }
     },
 
     render: function () {
@@ -203,6 +181,28 @@ var GridBlock = React.createClass({
                 <Pagination config={config} />
             </div>
         </div>;
+    },
+
+    componentWillMount: function () {
+        var c = this,
+            { config } = this.props,
+            s = this.state;
+
+        if (!config.store) {
+            throw new Error('no store supplied to Grid');
+        }
+
+        this.onPageLoaded = () => this.setState({store: s.store});
+        config.store.on('page-loaded', this.onPageLoaded);
+
+        config.store.requestPage(1, true);
+    },
+
+    componentWillUnmount: function () {
+        var c = this,
+            { config } = this.props;
+
+        config.store.off('page-loaded', this.onPageLoaded);
     }
 });
 
