@@ -20,7 +20,7 @@ define([
             rows_per_page: 25,
             order_col: null,
             order_dir: 'asc',
-            fixed_filters: {}
+            filters: {}
         }, config_);
 
         this.rows = [];
@@ -28,7 +28,7 @@ define([
         this.total_rows = 0;
         this.order_col = this.config.order_col;
         this.order_dir = this.config.order_dir;
-        this.filters = {};
+        this.filters = this.config.filters;
         this.search = '';
     };
 
@@ -143,7 +143,7 @@ define([
             start: (self.current_page - 1) * self.config.rows_per_page,
             limit: self.config.rows_per_page,
             order: {col: self.order_col, dir: self.order_dir},
-            filters: _.extend({}, self.config.fixed_filters, self.filters),
+            filters: self.filters,
             search: self.search
         }).then(function (data) {
             self.rows = data.data;
