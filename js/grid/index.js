@@ -145,12 +145,6 @@ var Grid = React.createClass({
                 }
             </div>
         );
-    },
-
-    // public API (also for cells)
-
-    reload: function () {
-        this.props.config.store.requestPage(this.props.config.store.getCurrentPageNumber(), true);
     }
 });
 
