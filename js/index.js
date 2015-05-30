@@ -7,6 +7,7 @@ define([
     './validators.js',
     './bootstrap-widgets.jsx',
     './image-upload.jsx',
+    './sidebar/index.js',
     './utils/index.js',
 
     '../css/image-upload.scss',
@@ -19,6 +20,7 @@ define([
     Validators,
     BootstrapWidgets,
     ImageUpload,
+    Sidebar,
     Utils,
     image_upload_scss,
     grid_scss
@@ -31,6 +33,7 @@ define([
         Validators:        Validators,
         BootstrapWidgets:  BootstrapWidgets,
         ImageUpload:       ImageUpload,
+        Sidebar:           Sidebar,
         Utils:             Utils
     };
 });
