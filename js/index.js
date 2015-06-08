@@ -6,7 +6,7 @@ define([
     './form.jsx',
     './validators.js',
     './bootstrap-widgets.jsx',
-    './image-upload.jsx',
+    './image-upload',
     './sidebar/index.js',
     './utils/index.js',
 
