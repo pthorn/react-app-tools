@@ -9,53 +9,57 @@ div.rat-image-field {
         cursor: pointer;
     }
 
-    div.no-image {
-        background: #eee;
-        border: 1px solid #666;
+    div.gallery {
 
-        p {
-            // http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
-            position: relative;
-            top: 50%;
-            transform: translateY(-50%);
-            text-align: center;
+        div.image, div.no-image {
+            display: inline-block;
+            vertical-align: top;
+            margin: 0 12px 12px 0;
         }
-    }
 
-    div.image {
+        div.no-image {
+            background: #eee;
+            border: 1px solid #666;
 
-        div.buttons {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 32px;
-            background: rgba(0, 0, 0, 0.5);
+            p {
+                // http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
+                position: relative;
+                top: 50%;
+                transform: translateY(-50%);
+                text-align: center;
+            }
+        }
 
-            span.glyphicon {
-                float: right;
-                margin: 8px 10px 0 0;
-                font-size: 16px;
-                color: white;
-                cursor: pointer;
+        div.image {
+            position: relative;
+
+            div.buttons {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 32px;
+                background: rgba(0, 0, 0, 0.5);
+
+                span.glyphicon {
+                    float: right;
+                    margin: 8px 10px 0 0;
+                    font-size: 16px;
+                    color: white;
+                    cursor: pointer;
+                }
+
+                a:hover, a:active {
+                    span.glyphicon.glyphicon-remove {
+                        color: red;
+                    }
+                }
+            }
+
+            &:hover div.buttons {
+                display: block;
             }
         }
     }
 }
-
-
-/*
-    div.aat-image-list li > div a:hover span.glyphicon,
-    div.aat-image-list li > div a:active span.glyphicon
-    {
-        color: #aaf;
-    }
-
-    div.aat-image-list li > div a:hover span.glyphicon.glyphicon-remove,
-    div.aat-image-list li > div a:active span.glyphicon.glyphicon-remove
-    {
-        color: red;
-    }
-
-*/
