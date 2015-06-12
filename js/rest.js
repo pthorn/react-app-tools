@@ -30,7 +30,8 @@ define([
         var self = this;
 
         var config = $.extend({
-            url_prefix:       '/rest/'
+            url_prefix:       '/rest/',
+            csrf_token: null
         }, config_ || {});
 
         if (config.url_prefix.indexOf('/', this.length - 1) === -1) {
@@ -45,6 +46,17 @@ define([
                 dataType: 'json',
                 contentType: "application/json"
             };
+
+            if (opts.method != 'GET' && config.csrf_token !== null) {
+                var csrf_token = config.csrf_token;
+                if (_.isFunction(csrf_token)) {
+                    csrf_token = csrf_token();
+                }
+
+                defaultOpts.headers = {
+                    'X-CSRF-Token': csrf_token
+                };
+            }
 
             if (opts.data && opts.method != 'GET') {
                 opts.data = JSON.stringify(opts.data);
