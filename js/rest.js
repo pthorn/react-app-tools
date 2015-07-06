@@ -73,20 +73,11 @@ define([
                             self.emit('end-request');
                         }
 
-                        if (json.status == 'ok') {
-                            resolve(json);
-                        } else {
-                            var reason;
-                            if (json.status == 'invalid') {
-                                reason = 'invalid';
-                                self.emit('invalid', json);
-                            } else {
-                                reason = 'rest-error';
-                                self.emit('rest-error', json);
-                            }
-
-                            reject({reason: reason, json: json});
+                        if (json.status !== 'ok') {
+                            self.emit('rest-error', json);
                         }
+
+                        resolve(json);
                     },
 
                     error: function (jqXhr, textStatus, errorThrown) {
