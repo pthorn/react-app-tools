@@ -111,39 +111,42 @@ define([
 
             var qs = {};
 
-            if (params.start) {
-                qs.s = params.start;
-            }
 
-            if (params.limit) {
-                qs.l = params.limit;
-            }
+            if (_.isObject(params)) {
+                if (params.start) {
+                    qs.s = params.start;
+                }
 
-            if (_.isString(params.order)) {
-                qs.o = params.order;
-            } else if (_.isObject(params.order) && params.order.col) {
-                qs.o = (params.order.dir == 'desc' ? '-' : '') + params.order.col;
-            }
+                if (params.limit) {
+                    qs.l = params.limit;
+                }
 
-            if (params.search) {
-                qs.q = params.search;
-            }
+                if (_.isString(params.order)) {
+                    qs.o = params.order;
+                } else if (_.isObject(params.order) && params.order.col) {
+                    qs.o = (params.order.dir == 'desc' ? '-' : '') + params.order.col;
+                }
 
-            if (params.filters) {
-                $.each(params.filters, function (key, val) {
-                    if (!val && val !== 0) {
-                        return;
-                    }
+                if (params.search) {
+                    qs.q = params.search;
+                }
 
-                    var value = val,
-                        op = 'e';
-                    if (val instanceof Array) {
-                        op = val[0];
-                        value = val[1];
-                    }
+                if (params.filters) {
+                    $.each(params.filters, function (key, val) {
+                        if (!val && val !== 0) {
+                            return;
+                        }
 
-                    qs['f' + op + '_' + key] = value;
-                });
+                        var value = val,
+                            op = 'e';
+                        if (val instanceof Array) {
+                            op = val[0];
+                            value = val[1];
+                        }
+
+                        qs['f' + op + '_' + key] = value;
+                    });
+                }
             }
 
             return this.request({
