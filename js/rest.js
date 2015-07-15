@@ -3,7 +3,7 @@
 define([
     'lodash',
     'rsvp',
-    'eventemitter',
+    'eventemitter'
 ], function (
     _,
     RSVP,
@@ -12,11 +12,8 @@ define([
 
     /**
      * config:
-     *   url_prefix:  default '/rest/', could be '//rest.me.com/api/'
-     *
-     * then argument: json response
-     *
-     * catch argument: {reason: 'string', json|xhr: ...}
+     *   url_prefix:  string, default '/rest/', could be '//rest.me.com/api/'
+     *   csrf_token:  string or callable, default null
      *
      * events:
      *   'rest-error'
@@ -40,11 +37,23 @@ define([
 
         var requests_in_progress = 0;
 
+        /**
+         * opts:
+         *   url
+         *   method
+         *   data: query string if GET else JSON request body
+         *   dataType: default is 'json'
+         *   contentType: default is 'application/json'
+         *
+         *   @return promise:
+         *     .then(arg): json response
+         *     .catch(arg): {reason: 'string', json|xhr: ...}
+         */
         this.request = function (opts) {
 
             var defaultOpts = {
                 dataType: 'json',
-                contentType: "application/json"
+                contentType: 'application/json'
             };
 
             if (opts.method != 'GET' && config.csrf_token !== null) {
