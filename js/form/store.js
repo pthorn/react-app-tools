@@ -73,15 +73,17 @@ class FormStore {
         var promise = x[this.model.mode].call(this, this.model.getValueForJSON(), this.model.entityId);
 
         promise.then((data) => {
-            showNotification('Объект сохранен', '', 'success');
-            this.emit('saved', data);
-        }).catch((error) => {
-            if (error.reason === 'invalid') {
-                showNotification('Ошибки валидации', JSON.stringify(error.json), 'warning');
+            if (data.status === 'ok') {
+                showNotification('Объект сохранен', '', 'success');
+                this.emit('saved', data);
+            } else if (data.code === 'invalid') {
+                showNotification('Ошибки валидации', JSON.stringify(data.errors), 'warning');
                 // TODO !!! c.addServerValidationErrors(error.json.errors);
-            } else if (error.reason == 'rest-error') {
-                showNotification('Ошибка', JSON.stringify(error.json), 'error');
+            } else {
+                showNotification('Ошибка', JSON.stringify(data), 'error');
             }
+        }).catch((error) => {
+            showNotification('Ошибка', JSON.stringify(error.json), 'error');
         });
     }
 
