@@ -102,13 +102,14 @@ var Empty = React.createClass({
 var Image = React.createClass({
     propTypes: {
         id: React.PropTypes.string.isRequired,
+        selected: React.PropTypes.bool.isRequired,
         onClick: React.PropTypes.func.isRequired,
         onActionClick: React.PropTypes.func.isRequired,
         config: React.PropTypes.object.isRequired
     },
 
     render: function () {
-        var { id, onClick, onActionClick, config } = this.props;
+        var { id, selected, onClick, onActionClick, config } = this.props;
 
         var thumb_src = get_url(config.url_prefix, config.image_type,
                                 id, config.thumb_variant);
@@ -116,7 +117,7 @@ var Image = React.createClass({
         //width={config.thumb_size[0]}
         //height={config.thumb_size[1]}
 
-        return <div className="image">
+        return <div className={cx({image: true, selected: selected})}>
             <img src={thumb_src}
                  onClick={onClick} />
                 <div className="buttons">
@@ -210,11 +211,13 @@ export var ImageField = React.createClass({
     propTypes: {
         model: React.PropTypes.object.isRequired,
         path: React.PropTypes.string.isRequired,
-        config: React.PropTypes.object.isRequired
+        config: React.PropTypes.object.isRequired,
+        onImageSelected: React.PropTypes.func
     },
 
     getInitialState: function () {
         return {
+            selected_image_index: null,
             files_being_uploaded: []
         }
     },
@@ -224,10 +227,10 @@ export var ImageField = React.createClass({
             s = this.state;
         var { model, path } = this.props;
 
-        var files = model.child(path).getValueForView();
-        console.log('files:', files);
+        var file_list_model = model.child(path);
+        //console.log('files:', file_list_model);
 
-        var show_empty = c.config.gallery || files.length == 0;
+        var show_empty = c.config.gallery || file_list_model.nItems() === 0;
 
         return <div className="rat-image-field">
             <FileInput ref="file_input"
@@ -245,13 +248,16 @@ export var ImageField = React.createClass({
             }
 
             <div className="gallery">
-                {files.map((file) =>
-                    <Image key={file.id}
-                           id={file.id}
-                           onClick={c.onImageClicked}
-                           onActionClick={c.onImageActionClicked}
-                           config={c.config} />)
-                }
+                {file_list_model.mapItems((file_model, n) => {
+                    var file_id = file_model.child('id').getValue();
+                    //console.log('MAPITEMS', n, file_id, file_model);
+                    return <Image key={file_id}
+                                  id={file_id}
+                                  selected={n === s.selected_image_index}
+                                  onClick={c.onImageClicked.bind(null, n, file_id)}
+                                  onActionClick={c.onImageActionClicked}
+                                  config={c.config} />;
+                })}
                 {show_empty &&
                     <Empty onClick={c.onEmptyClicked} config={c.config} />
                 }
@@ -328,8 +334,14 @@ export var ImageField = React.createClass({
         this.refs.file_input.triggerFileSelect();
     },
 
-    onImageClicked: function () {
-        //
+    onImageClicked: function (index, file_id) {
+        var { model, path, onImageSelected } = this.props;
+
+        this.setState({selected_image_index: index});
+
+        if (onImageSelected) {
+            onImageSelected(model, path, index, file_id);
+        }
     },
 
     onImageActionClicked: function (action, image_id, e) {
