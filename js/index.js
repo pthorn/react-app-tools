@@ -1,38 +1,14 @@
+'use strict';
 
-define([
-    './rest',
-    './data',
-    './grid/index.js',
-    './form',
-    './bootstrap-widgets.jsx',
-    './image-upload',
-    './sidebar/index.js',
-    './utils/index.js',
 
-    '../css/image-upload.scss',
-    '../css/grid.scss'
-], function (
-    Rest,
-    Data,
-    Grid,
-    Form,
-    Validators,
-    BootstrapWidgets,
-    ImageUpload,
-    Sidebar,
-    Utils,
-    image_upload_scss,
-    grid_scss
-) {
-    return {
-        Rest:              Rest,
-        Data:              Data,
-        Grid:              Grid,
-        Form:              Form,
-        Validators:        Validators,
-        BootstrapWidgets:  BootstrapWidgets,
-        ImageUpload:       ImageUpload,
-        Sidebar:           Sidebar,
-        Utils:             Utils
-    };
-});
+export var Rest = require('./rest');
+export var Data = require('./data');
+export var Grid = require('./grid');
+export var Form = require('./form');
+export var BootstrapWidgets = require('./bootstrap-widgets.jsx');
+export var ImageUpload = require('./image-upload');
+export var Sidebar = require('./sidebar');
+export var Utils = require('./utils');
+
+require('../css/image-upload.scss');
+require('../css/grid.scss');
