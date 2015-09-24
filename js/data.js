@@ -23,6 +23,7 @@ define([
             filters: {}
         }, config_);
 
+        this.initialized = false;
         this.rows = [];
         this.current_page = 1;
         this.total_rows = 0;
@@ -33,6 +34,13 @@ define([
     };
 
     _.extend(PagedStore.prototype, EventEmitter.prototype);
+
+    PagedStore.prototype.init = function () {
+        if (!this.initialized) {
+            this.requestPage(1, true);
+            this.initialized = true;
+        }
+    };
 
     PagedStore.prototype.getRows = function () {
         return this.rows;

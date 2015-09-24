@@ -189,7 +189,7 @@ var GridBlock = React.createClass({
         this.onPageLoaded = () => this.setState({store: s.store});
         config.store.on('page-loaded', this.onPageLoaded);
 
-        config.store.requestPage(1, true);
+        config.store.init();
     },
 
     componentWillUnmount: function () {
