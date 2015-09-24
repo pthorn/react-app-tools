@@ -1,0 +1,61 @@
+
+div.rat-select {
+    position: relative;
+
+    ul.selected, ul.dropdown, ul.options {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    ul.selected {
+        margin-bottom: 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+
+        li {
+            display: inline-block;
+            margin: 6px 0 6px 8px;
+            color: white;
+            background-color: #286090;
+            border-color: #204d74;
+
+            button {
+                color: black;
+            }
+
+            span {
+                padding: 0 5px;
+                font-size: 0.95em;
+            }
+        }
+    }
+
+    ul.dropdown {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        max-height: 500px;
+        overflow-y: scroll;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+
+        h6 {
+            font-weight: bold;
+        }
+    }
+
+    ul.options {
+        li {
+            padding: 2px 6px;
+
+            &:not(.disabled) {
+                cursor: pointer;
+
+                &:hover {
+                    background: #eee;
+                }
+            }
+        }
+    }
+}
