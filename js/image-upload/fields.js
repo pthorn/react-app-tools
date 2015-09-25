@@ -268,6 +268,7 @@ export var ImageField = React.createClass({
     uploadFile: function (file_obj) {
         var c = this,
             { model, path } = c.props,
+            list_model = model.child(path),
             s = this.state;
 
         s.files_being_uploaded.push(file_obj);
@@ -290,8 +291,7 @@ export var ImageField = React.createClass({
                 console.log('uploaded', xhr.status, resp);
 
                 if (resp.status === 'ok') {
-                    var list_model = model.child(path);
-                    list_model.addItem().setValueFromView(resp.data);  // TODO two changed signals -> empty child is seen
+                    list_model.addItem().setValueFromJSON(resp.data);
                     _.remove(s.files_being_uploaded, (obj) => obj === file_obj);
                 } else {
                     // TODO
