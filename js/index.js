@@ -11,5 +11,4 @@ export var ImageUpload = require('./image-upload');
 export var Sidebar = require('./sidebar');
 export var Utils = require('./utils');
 
-require('../css/image-upload.scss');
 require('../css/grid.scss');

@@ -1,4 +1,6 @@
 'use strict';
 
 
-export var { ImageField } = require('./fields');
+export * from './fields';
+
+require('../../css/image-upload.scss');
