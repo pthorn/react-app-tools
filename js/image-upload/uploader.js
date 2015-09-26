@@ -72,7 +72,11 @@ export var upload_file = function(file_obj, params) {
     var upload_params = typeof file_obj.upload_params === 'function' ?
         file_obj.upload_params.call($this) : file_obj.upload_params;  // TODO $this is not defined
 
-    _.forOwn(upload_params, (v, k) => form_data.append(k, v));
+    _.forOwn(upload_params, (v, k) => {
+        if (!_.isUndefined(v)) {
+            form_data.append(k, v);
+        }
+    });
 
     // send request
 
