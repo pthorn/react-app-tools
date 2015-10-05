@@ -123,14 +123,14 @@ var Image = React.createClass({
                 <div className="buttons">
                     {config.enable_delete &&
                         <a href
-                           onClick={onActionClick.bind(null, 'delete', id)}
+                           onClick={onActionClick.bind(null, 'delete')}
                            title="Удалить">
                             <span className="glyphicon glyphicon-remove gi gi-remove"/>
                         </a>
                     }
                     {!_.isUndefined(config.large_variant) &&
                         <a href
-                           onClick={onActionClick.bind(null, 'open-large', id)}
+                           onClick={onActionClick.bind(null, 'open-large')}
                            title="Открыть оригинал">
                             <span className="glyphicon glyphicon-new-window gi gi-new_window"/>
                         </a>
@@ -255,7 +255,7 @@ export var ImageField = React.createClass({
                                   id={file_id}
                                   selected={n === s.selected_image_index}
                                   onClick={c.onImageClicked.bind(null, n, file_id)}
-                                  onActionClick={c.onImageActionClicked}
+                                  onActionClick={c.onImageActionClicked.bind(null, n)}
                                   config={c.config} />;
                 })}
                 {show_empty &&
@@ -344,9 +344,9 @@ export var ImageField = React.createClass({
         }
     },
 
-    onImageActionClicked: function (action, image_id, e) {
+    onImageActionClicked: function (n, action, e) {
         e.preventDefault();
-        console.log('onImageActionClicked', action, image_id);
+        //console.log('onImageActionClicked', arguments);
 
         var c = this,
             { model, path } = c.props;
@@ -354,11 +354,8 @@ export var ImageField = React.createClass({
         var list_model = model.child(path);
 
         if (action === 'delete') {
-            _.each(list_model.getValue(), (item, i) => {
-                if (item.id === image_id) {
-                    list_model.removeItemAt(i);
-                }
-            });
+            list_model.removeItemAt(n);
+            return;
         }
 
         if (action === 'open-large') {
