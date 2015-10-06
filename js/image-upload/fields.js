@@ -255,7 +255,7 @@ export var ImageField = React.createClass({
                                   id={file_id}
                                   selected={n === s.selected_image_index}
                                   onClick={c.onImageClicked.bind(null, n, file_id)}
-                                  onActionClick={c.onImageActionClicked.bind(null, n)}
+                                  onActionClick={c.onImageActionClicked.bind(null, n, file_id)}
                                   config={c.config} />;
                 })}
                 {show_empty &&
@@ -344,7 +344,7 @@ export var ImageField = React.createClass({
         }
     },
 
-    onImageActionClicked: function (n, action, e) {
+    onImageActionClicked: function (n, image_id, action, e) {
         e.preventDefault();
         //console.log('onImageActionClicked', arguments);
 
