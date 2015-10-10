@@ -154,9 +154,11 @@ define([
             filters: self.filters,
             search: self.search
         }).then(function (data) {
-            self.rows = data.data;
-            self.total_rows = data.count;
-            self.emit('page-loaded');
+            if (data.status === 'ok') {
+                self.rows = data.data;
+                self.total_rows = data.count;
+                self.emit('page-loaded');
+            }
         });
 //        }).catch(function (xxx) {
 //            console.log('grid: rest req error!', xxx);
