@@ -14,8 +14,6 @@ var DropDownList = React.createClass({
     render: function () {
         var { options, onSelected } = this.props;
 
-        //console.log('--- KKKK', options);
-
         return <ul className="dropdown">
             {options.map((opts) =>
                 <li>
@@ -23,7 +21,7 @@ var DropDownList = React.createClass({
                     <ul className="options">
                         { /*console.log('--- ', opts)*/ }
                         {opts.options.map((opt) =>
-                            <li onClick={onSelected.bind(null, opt)}>
+                            <li key={opt.val} onClick={onSelected.bind(null, opt)}>
                                 {/* TODO call renderers if any */}
                                 {opt.label}
                             </li>
@@ -49,7 +47,7 @@ var MultiSelectSelected = React.createClass({
         return <ul className="selected"
                    onClick={onClicked}>
             {selected_options.map((opt) =>
-                <li>
+                <li key={opt.val}>
                     <button onClick={onRemoveClicked.bind(null, opt)}>
                         <i className="fa fa-times" />
                     </button>
@@ -77,13 +75,12 @@ export var MultiSelect = React.createClass({
     propTypes: {
         model: React.PropTypes.object.isRequired,
         path: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired,
-        config: React.PropTypes.object.isRequired
+        options: React.PropTypes.array.isRequired
     },
 
     getInitialState: function () {
         return {
-            dropdown_open: false // TODO false
+            dropdown_open: false
         }
     },
 
