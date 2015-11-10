@@ -8,28 +8,37 @@ var cx = require('classnames');
 var DropDownList = React.createClass({
     propTypes: {
         options: React.PropTypes.array.isRequired,
-        onSelected: React.PropTypes.func.isRequired
+        onSelected: React.PropTypes.func.isRequired,
+        twolevel: React.PropTypes.bool
     },
 
     render: function () {
-        var { options, onSelected } = this.props;
+        var { options, twolevel, onSelected } = this.props;
 
-        return <ul className="dropdown">
-            {options.map((opts) =>
-                <li>
-                    <h6>{opts.title}</h6>
-                    <ul className="options">
-                        { /*console.log('--- ', opts)*/ }
-                        {opts.options.map((opt) =>
-                            <li key={opt.val} onClick={onSelected.bind(null, opt)}>
-                                {/* TODO call renderers if any */}
-                                {opt.label}
-                            </li>
-                        )}
-                    </ul>
+        const render_one_level_list = (opts) =>
+            opts.map((opt) =>
+                <li key={opt.val} onClick={onSelected.bind(null, opt)}>
+                    {/* TODO call renderers if any */}
+                    {opt.label}
                 </li>
-            )}
-        </ul>;
+            );
+
+        if (twolevel) {
+            return <ul className="dropdown">
+                {options.map((opts) =>
+                    <li>
+                        <h6>{opts.title}</h6>
+                        <ul className="options">
+                            {render_one_level_list(opts.options)}
+                        </ul>
+                    </li>
+                )}
+            </ul>;
+        } else {
+            return <ul className="dropdown options">
+                {render_one_level_list(options)}
+            </ul>;
+        }
     }
 });
 
@@ -75,7 +84,14 @@ export var MultiSelect = React.createClass({
     propTypes: {
         model: React.PropTypes.object.isRequired,
         path: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired
+        options: React.PropTypes.array.isRequired,
+        twolevel: React.PropTypes.bool
+    },
+
+    getDefaultProps: function () {
+        return {
+            twolevel: false
+        };
     },
 
     getInitialState: function () {
@@ -85,9 +101,9 @@ export var MultiSelect = React.createClass({
     },
 
     render: function () {
-        var c = this,
-            { model, path, options } = this.props,
-            { dropdown_open } = this.state;
+        const c = this,
+              { model, path, options, twolevel } = c.props,
+              { dropdown_open } = c.state;
 
         var selected_option_ids = model.child(path).getValueForView();
         var selected_options = [];
@@ -95,14 +111,20 @@ export var MultiSelect = React.createClass({
 
         //console.log('selected_option_ids', selected_option_ids);
 
-        for (let opts of options) {
-            //console.log('MEOW', opts);
-            for (let opt of opts.options) {
-                //console.log('EOOF', opt);
+        if (twolevel) {
+            for (let opts of options) {
+                for (let opt of opts.options) {
+                    if (_.includes(selected_option_ids, opt.val)) {
+                        selected_options.push(opt);
+                        //} else {
+                        //    unselected_options.push(opt);
+                    }
+                }
+            }
+        } else {
+            for (let opt of options) {
                 if (_.includes(selected_option_ids, opt.val)) {
                     selected_options.push(opt);
-                //} else {
-                //    unselected_options.push(opt);
                 }
             }
         }
@@ -113,6 +135,7 @@ export var MultiSelect = React.createClass({
                                  onClicked={(e) => this.setState({dropdown_open: true})} />
             {dropdown_open &&
                 <DropDownList options={options /*unselected_options*/}
+                              twolevel={twolevel}
                               onSelected={c.onOptionSelected} />
             }
         </div>;
