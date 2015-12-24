@@ -48,16 +48,21 @@ div.rat-image-field {
                 height: 32px;
                 background: rgba(0, 0, 0, 0.5);
 
-                span.glyphicon {
+                i {
                     float: right;
                     margin: 8px 10px 0 0;
-                    font-size: 16px;
+                    font-size: 18px;
                     color: white;
                     cursor: pointer;
                 }
 
                 a:hover, a:active {
-                    span.glyphicon.glyphicon-remove {
+                    i {
+                        opacity: 0.8;
+                    }
+
+                    i.fa-times {
+                        opacity: 1;
                         color: red;
                     }
                 }

@@ -5,53 +5,8 @@ var React = require('react');
 var cx = require('classnames');
 
 var { upload_file } = require('./uploader');
-
-
-var human_readable_file_size = function(size) {
-    if(size > 1024*1024) {
-        return (size / (1024*1024)).toFixed(2) + 'M';
-    }
-    if(size > 1024) {
-        return (size / 1024).toFixed(2) + 'K';
-    }
-    return "" + size;
-};
-
-
-var upload_error_message = function (error_code, error_arg, response, xhr, file_obj, e) {
-    console.log('upload_error', error_code, error_arg, response);
-
-    var message = 'Ошибка загрузки: ' + error_code + ' ' + error_arg;
-
-    if (error_code == 'status' && response.code === 'not-an-image') {
-        message = 'Файл не является изображением';
-    } else if (error_code == 'status') {
-        message = response.code || response.message;
-    } else if (error_code == 'http-status' && error_arg == 413) {
-        message = 'Файл слишком большой';
-    } else if (error_code == 'http-status') {
-        message = 'Ошибка ' + error_arg;
-    }
-
-    return message;
-};
-
-
-var get_url = function (prefix, type, id, variant) {
-    var url = prefix + '/' + type;
-
-    if (_.isUndefined(id)) {
-        return url;
-    }
-
-    url = url + '/' + id;
-
-    if (_.isUndefined(variant) || variant === '') {
-        return url;
-    }
-
-    return url + '/' + variant;
-};
+import { WrappedImage, Empty } from './image-list';
+import { human_readable_file_size, upload_error_message, get_url } from './utils';
 
 
 var FileInput = React.createClass({
@@ -72,71 +27,6 @@ var FileInput = React.createClass({
 
     triggerFileSelect: function () {
         this.refs.fileInput.getDOMNode().click();
-    }
-});
-
-
-var Empty = React.createClass({
-    propTypes: {
-        config: React.PropTypes.object.isRequired,
-        onClick: React.PropTypes.func.isRequired
-    },
-
-    render: function () {
-        var { config, onClick } = this.props;
-
-        var style = {
-            width: config.thumb_size[0] + 'px',
-            height: config.thumb_size[1] + 'px'
-        };
-
-        return (
-            <div style={style} className="no-image" onClick={onClick}>
-                <p>Загрузить изображение</p>
-            </div>
-        );
-    }
-});
-
-
-var Image = React.createClass({
-    propTypes: {
-        id: React.PropTypes.string.isRequired,
-        selected: React.PropTypes.bool.isRequired,
-        onClick: React.PropTypes.func.isRequired,
-        onActionClick: React.PropTypes.func.isRequired,
-        config: React.PropTypes.object.isRequired
-    },
-
-    render: function () {
-        var { id, selected, onClick, onActionClick, config } = this.props;
-
-        var thumb_src = get_url(config.url_prefix, config.image_type,
-                                id, config.thumb_variant);
-
-        //width={config.thumb_size[0]}
-        //height={config.thumb_size[1]}
-
-        return <div className={cx({image: true, selected: selected})}>
-            <img src={thumb_src}
-                 onClick={onClick} />
-                <div className="buttons">
-                    {config.enable_delete &&
-                        <a href
-                           onClick={onActionClick.bind(null, 'delete')}
-                           title="Удалить">
-                            <span className="glyphicon glyphicon-remove gi gi-remove"/>
-                        </a>
-                    }
-                    {!_.isUndefined(config.large_variant) &&
-                        <a href
-                           onClick={onActionClick.bind(null, 'open-large')}
-                           title="Открыть оригинал">
-                            <span className="glyphicon glyphicon-new-window gi gi-new_window"/>
-                        </a>
-                    }
-                </div>
-        </div>;
     }
 });
 
@@ -251,11 +141,13 @@ export var ImageField = React.createClass({
                 {file_list_model.mapItems((file_model, n) => {
                     var file_id = file_model.child('id').getValue();
                     //console.log('MAPITEMS', n, file_id, file_model);
-                    return <Image key={file_id}
+                    return <WrappedImage key={file_id}
                                   id={file_id}
+                                  index={n}
                                   selected={n === s.selected_image_index}
                                   onClick={c.onImageClicked.bind(null, n, file_id)}
                                   onActionClick={c.onImageActionClicked.bind(null, n, file_id)}
+                                  onReorder={c.onReorder}
                                   config={c.config} />;
                 })}
                 {show_empty &&
@@ -368,6 +260,15 @@ export var ImageField = React.createClass({
 
     onProgressClicked: function () {
         //
+    },
+
+    onReorder: function (from, to) {
+        var c = this,
+            { model, path } = c.props,
+            list_model = model.child(path);
+
+        //console.log('REORDER', from, to);
+        list_model.moveItem(from, to);
     },
 
     componentWillMount: function () {
