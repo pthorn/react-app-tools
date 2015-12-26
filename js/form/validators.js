@@ -32,7 +32,14 @@ var Email = function (message) {
     message = message || 'Invalid email address';
 
     return function (model) {
-        var valid = re.test(model.getValue());
+        const val = model.getValue();
+
+        if (!val) {
+            model.setValid(true, 'email');
+            return;
+        }
+
+        const valid = re.test(val);
         model.setValid(valid, 'email', message);
     }
 };
