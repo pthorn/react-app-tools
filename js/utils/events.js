@@ -18,7 +18,7 @@ var EventMixin = {
             throw new Error('EventMixin: this.events should be an array');
         }
 
-        this._events = [];
+        this._rat_events = [];
 
         this.events.forEach(function (event_spec) {
             if (event_spec.length != 3) {
@@ -40,12 +40,12 @@ var EventMixin = {
 
             event_source.on(event, event_handler);
 
-            this._events.push([event_source, event, event_handler]);
+            this._rat_events.push([event_source, event, event_handler]);
         }, this);
     },
 
     componentWillUnmount: function () {
-        this._events.forEach(function (event_spec) {
+        this._rat_events.forEach(function (event_spec) {
             var event_source = event_spec[0],
                 event = event_spec[1],
                 event_handler = event_spec[2];
@@ -53,7 +53,7 @@ var EventMixin = {
             event_source.off(event, event_handler);
         }, this);
 
-        delete this._events;
+        delete this._rat_events;
     }
 };
 
