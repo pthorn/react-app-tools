@@ -23,7 +23,7 @@ var _ = require('lodash');
  *
  * see https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
  */
-export const upload_file = function(file_obj, params) {
+export var upload_file = function(file_obj, params) {
     var xhr = new XMLHttpRequest();
 
     // install event listeners

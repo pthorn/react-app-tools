@@ -271,8 +271,8 @@ export var ImageField = React.createClass({
         list_model.moveItem(from, to);
     },
 
-    componentWillMount: function () {
-        var { config } = this.props;
+    onPropsChanged: function (props) {
+        const { config } = props;
 
         this.config = _.extend({
             url_prefix:     undefined,
@@ -297,5 +297,13 @@ export var ImageField = React.createClass({
         if (_.isUndefined(this.config.image_type)) {
             throw new Error('ImageField: config.image_type must be specified');
         }
+    },
+
+    componentWillMount: function () {
+        this.onPropsChanged(this.props);
+    },
+
+    componentWillReceiveProps: function (props) {
+        this.onPropsChanged(props);
     }
 });
