@@ -2,11 +2,9 @@
 
 define([
     'lodash',
-    'rsvp',
     'eventemitter'
 ], function (
     _,
-    RSVP,
     EventEmitter
 ) {
 
@@ -71,7 +69,8 @@ define([
                 opts.data = JSON.stringify(opts.data);
             }
 
-            return new RSVP.Promise(function (resolve, reject) {
+
+            return new Promise(function (resolve, reject) {
                 if (requests_in_progress++ == 0) {
                     self.emit('start-request');
                 }

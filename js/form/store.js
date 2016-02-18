@@ -1,7 +1,6 @@
 'use strict';
 
 var _  = require('lodash');
-var RSVP = require('rsvp');
 var EventEmitter = require('eventemitter');
 var { showNotification } = require('../utils');
 
@@ -88,7 +87,7 @@ class FormStore {
     }
 
     loadNew() {
-        return new RSVP.Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.model.reset();
             resolve();
         });
