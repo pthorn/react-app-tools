@@ -141,6 +141,11 @@ define([
         this._request();
     };
 
+    PagedStore.prototype.reload = function () {
+        this.current_page = 1;
+        this._request();
+    };
+
     PagedStore.prototype._request = function () {
         var self = this;
 
