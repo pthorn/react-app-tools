@@ -1,6 +1,6 @@
 {
   "name": "react-app-tools",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "An application toolkit for React",
   "main": "js/index.js",
   "directories": {
