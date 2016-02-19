@@ -2,7 +2,6 @@
 
 var _  = require('lodash');
 var React = require('react');
-var { State,  Link } = require('react-router');
 var cx = require('classnames');
 
 
@@ -29,19 +28,15 @@ var SidebarList = React.createClass({
 
 
 /**
- * <SidebarListItem route="messages"> ... </SidebarListItem>
- * <SidebarListItem route={['grid', 'edit']}> ... </SidebarListItem>
  * <SidebarListItem pathRegex={/^\/user/}> ... </SidebarListItem>
  */
 var SidebarListItem = React.createClass({
-    mixins: [ State ],
+    contextTypes: {
+        location: React.PropTypes.object
+    },
 
     propTypes: {
-        pathRegex: React.PropTypes.object,
-        route: React.PropTypes.oneOfType([
-            React.PropTypes.string,
-            React.PropTypes.array
-        ])
+        pathRegex: React.PropTypes.object
     },
 
     render: function () {
@@ -54,20 +49,11 @@ var SidebarListItem = React.createClass({
     },
 
     match: function () {
-        var { pathRegex, route } = this.props;
-
-        if (_.isArray(route)) {
-            if (!_.every(route, (item) => !_.find(this.getRoutes(), 'name', item))) {
-                return true;
-            }
-        } else  if (!_.isUndefined(route)) {
-            if (_.find(this.getRoutes(), 'name', route)) {
-                return true;
-            }
-        }
+        const { pathRegex } = this.props;
+        const { location } = this.context;
 
         if (!_.isUndefined(pathRegex)) {
-            if (pathRegex.test(this.getPathname())) {
+            if (pathRegex.test(location.pathname)) {
                 return true;
             }
         }
