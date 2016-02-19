@@ -162,7 +162,7 @@ var RadioList = React.createClass({
             return <div className={cx({radio: true, disabled: options.disabled})} key={n}>
                 <label>
                     <input type="radio"
-                           checked={_.contains(value, option.val)}
+                           checked={_.includes(value, option.val)}
                            disabled={option.disabled /* TODO how to disable whole control when model.isDisabled(path)*/}
                            onChange={c.onChange.bind(null, option.val)} />
                     {option.label}
