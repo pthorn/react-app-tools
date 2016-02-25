@@ -7,7 +7,6 @@ define([
     _,
     EventEmitter
 ) {
-
     /**
      * config:
      *   url_prefix:  string, default '/rest/', could be '//rest.me.com/api/'
@@ -81,11 +80,16 @@ define([
                             self.emit('end-request');
                         }
 
-                        if (json.status !== 'ok') {
-                            self.emit('rest-error', json);
+                        // TODO what if response is not JSON?
+
+                        if (json.status === 'ok') {
+                            resolve(json);
                         }
 
-                        resolve(json);
+                        if (json.status !== 'ok') {
+                            self.emit('rest-error', json);
+                            reject({reason: 'rest-error', json: json});
+                        }
                     },
 
                     error: function (jqXhr, textStatus, errorThrown) {
@@ -93,20 +97,15 @@ define([
                             self.emit('end-request');
                         }
 
-                        var reason;
-
                         if (jqXhr.status == 401) {
-                            reason = 'http-error-401';
                             self.emit('http-error-401', jqXhr);
                         } else if  (jqXhr.status == 403) {
-                            reason = 'http-error-403';
                             self.emit('http-error-403', jqXhr);
                         } else {
-                            reason = 'http-error';
                             self.emit('http-error', jqXhr);
                         }
 
-                        reject({reason: reason, xhr: jqXhr});
+                        reject({reason: 'http-error', xhr: jqXhr});
                     }
                 }));
             });
