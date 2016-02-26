@@ -17,19 +17,19 @@ import EventEmitter from 'eventemitter';
  *   'start-request'
  *   'end-request'
  */
-export const Rest = function (config_) {
-    var self = this;
+export class Rest {
+    constructor(config_) {
+        this.config = _.extend({
+            url_prefix: '/rest/',
+            csrf_token: null
+        }, config_ || {});
 
-    var config = $.extend({
-        url_prefix:       '/rest/',
-        csrf_token: null
-    }, config_ || {});
+        if (this.config.url_prefix.indexOf('/', this.config.url_prefix.length - 1) === -1) {
+            this.config.url_prefix = this.config.url_prefix + '/';
+        }
 
-    if (config.url_prefix.indexOf('/', this.length - 1) === -1) {
-        config.url_prefix = config.url_prefix + '/';
+        this.requests_in_progress = 0;
     }
-
-    var requests_in_progress = 0;
 
     /**
      * opts:
@@ -43,15 +43,15 @@ export const Rest = function (config_) {
      *     .then(arg): json response
      *     .catch(arg): {reason: 'string', json|xhr: ...}
      */
-    this.request = function (opts) {
-
-        var defaultOpts = {
+    request(opts) {
+        const self = this;
+        const defaultOpts = {
             dataType: 'json',
             contentType: 'application/json'
         };
 
-        if (opts.method != 'GET' && config.csrf_token !== null) {
-            var csrf_token = config.csrf_token;
+        if (opts.method != 'GET' && this.config.csrf_token !== null) {
+            let csrf_token = this.config.csrf_token;
             if (_.isFunction(csrf_token)) {
                 csrf_token = csrf_token();
             }
@@ -69,13 +69,13 @@ export const Rest = function (config_) {
         // TODO https://docs.angularjs.org/api/ng/service/$http#security-considerations
 
         return new Promise(function (resolve, reject) {
-            if (requests_in_progress++ == 0) {
+            if (self.requests_in_progress++ == 0) {
                 self.emit('start-request');
             }
 
-            $.ajax($.extend({}, defaultOpts, opts, {
+            $.ajax(_.extend({}, defaultOpts, opts, {
                 success: function (json) {
-                    if (--requests_in_progress == 0) {
+                    if (--self.requests_in_progress == 0) {
                         self.emit('end-request');
                     }
 
@@ -92,7 +92,7 @@ export const Rest = function (config_) {
                 },
 
                 error: function (jqXhr, textStatus, errorThrown) {
-                    if (--requests_in_progress == 0) {
+                    if (--self.requests_in_progress == 0) {
                         self.emit('end-request');
                     }
 
@@ -108,15 +108,14 @@ export const Rest = function (config_) {
                 }
             }));
         });
-    };
+    }
 
     // CRUD methods
 
-    this.getList = function (entity, params) {
-        var url = config.url_prefix + entity;
+    getList(entity, params) {
+        const url = this.config.url_prefix + entity;
 
         var qs = {};
-
 
         if (_.isObject(params)) {
             if (params.start) {
@@ -160,75 +159,75 @@ export const Rest = function (config_) {
             method: 'GET',
             data: qs
         });
-    };
+    }
 
-    this.getEntityById = function (entity, id) {
-        var url = config.url_prefix + entity + '/' + id;
+    getEntityById(entity, id) {
+        const url = `${this.config.url_prefix}${entity}/${id}`;
         return this.request({
             url: url,
             method: 'GET'
         });
-    };
+    }
 
-    this.createEntity = function (entity, data) {
-        var url = config.url_prefix + entity;
+    createEntity(entity, data) {
+        const url = this.config.url_prefix + entity;
         return this.request({
             url: url,
             method: 'POST',
             data: data
         });
-    };
+    }
 
-    this.updateEntityForId = function (entity, id, data) {
-        var url = config.url_prefix + entity + '/' + id;
+    updateEntityForId(entity, id, data) {
+        const url = `${this.config.url_prefix}${entity}/${id}`;
         return this.request({
             url: url,
             method: 'PUT',
             data: data
         });
-    };
+    }
 
-    this.deleteById = function (entity, id) {
-        var url = config.url_prefix + entity + '/' + id;
+    deleteById(entity, id) {
+        const url = `${this.config.url_prefix}${entity}/${id}`;
         return this.request({
             url: url,
             method: 'DElETE'
         });
-    };
+    }
 
     // low level methods
 
-    this.get = function (url, data) {
+    get(url, data) {
         return this.request({
             url: url,
             method: 'GET',
             data: data
         });
-    };
+    }
 
-    this.post = function (url, data) {
+    post(url, data) {
         return this.request({
             url: url,
             method: 'POST',
             data: data
         });
-    };
+    }
 
-    this.put = function (url, data) {
+    put(url, data) {
         return this.request({
             url: url,
             method: 'PUT',
             data: data
         });
-    };
+    }
 
-    this.del = function (url, data) {
+    del(url, data) {
         return this.request({
             url: url,
             method: 'DELETE',
             data: data
         });
-    };
-};
+    }
+}
 
 _.extend(Rest.prototype, EventEmitter.prototype);
