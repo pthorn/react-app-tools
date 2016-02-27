@@ -4,6 +4,18 @@ import _ from 'lodash';
 import EventEmitter from 'eventemitter';
 
 
+export function RestError (options) {
+    _.assign(this, options);
+
+    this.name = 'RestError';
+    this.message = 'Rest Error';
+    this.stack = Error(this.message).stack;  // http://es5.github.io/#x15.11.1
+};
+
+RestError.prototype = Object.create(Error.prototype);
+RestError.prototype.constructor = RestError;
+
+
 /**
  * config:
  *   url_prefix:  string, default '/rest/', could be '//rest.me.com/api/'
@@ -41,7 +53,7 @@ export class Rest {
      *
      *   @return promise:
      *     .then(arg): json response
-     *     .catch(arg): {reason: 'string', json|xhr: ...}
+     *     .catch(arg): RestError {reason: 'rest-error|http-error', json_response: {...}|undefined, status:, statusText:}
      */
     request(opts) {
         const self = this;
@@ -87,7 +99,10 @@ export class Rest {
 
                     if (json.status !== 'ok') {
                         self.emit('rest-error', json);
-                        reject({reason: 'rest-error', json: json});
+                        reject(new RestError({
+                            reason: 'rest-error',
+                            json_response: json
+                        }));
                     }
                 },
 
@@ -96,15 +111,21 @@ export class Rest {
                         self.emit('end-request');
                     }
 
+                    const error = new RestError({
+                        reason: 'http-error',
+                        status: jqXhr.status,
+                        statusText: jqXhr.statusText
+                    });
+
                     if (jqXhr.status == 401) {
-                        self.emit('http-error-401', jqXhr);
+                        self.emit('http-error-401', error);
                     } else if  (jqXhr.status == 403) {
-                        self.emit('http-error-403', jqXhr);
+                        self.emit('http-error-403', error);
                     } else {
-                        self.emit('http-error', jqXhr);
+                        self.emit('http-error', error);
                     }
 
-                    reject({reason: 'http-error', xhr: jqXhr});
+                    reject(error);
                 }
             }));
         });
