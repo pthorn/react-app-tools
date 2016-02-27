@@ -19,7 +19,7 @@ import EventEmitter from 'eventemitter';
  */
 export class Rest {
     constructor(config_) {
-        this.config = _.extend({
+        this.config = _.assign({
             url_prefix: '/rest/',
             csrf_token: null
         }, config_ || {});
@@ -73,7 +73,7 @@ export class Rest {
                 self.emit('start-request');
             }
 
-            $.ajax(_.extend({}, defaultOpts, opts, {
+            $.ajax(_.assign({}, defaultOpts, opts, {
                 success: function (json) {
                     if (--self.requests_in_progress == 0) {
                         self.emit('end-request');
