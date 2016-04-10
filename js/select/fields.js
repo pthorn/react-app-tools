@@ -83,9 +83,9 @@ var clickedOutsideElement = function (element, event) {
 
 export var MultiSelect = React.createClass({
     propTypes: {
-        model: React.PropTypes.object.isRequired,
-        path: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired,
+        store:    React.PropTypes.object.isRequired,
+        node:     React.PropTypes.object.isRequired,
+        options:  React.PropTypes.array.isRequired,
         twolevel: React.PropTypes.bool
     },
 
@@ -102,11 +102,13 @@ export var MultiSelect = React.createClass({
     },
 
     render: function () {
-        const c = this,
-              { model, path, options, twolevel } = c.props,
-              { dropdown_open } = c.state;
+        const c = this;
+        const { store, node, options, twolevel } = c.props;
+        const model = store.model;
+        const { dropdown_open } = c.state;
 
-        var selected_option_ids = model.child(path).getValueForView();
+        // TODO val.id is hardcoded here
+        const selected_option_ids = model.viewValue(node).map((subval) => subval.id);
         var selected_options = [];
         //var unselected_options = [];  // TODO!
 
@@ -145,29 +147,32 @@ export var MultiSelect = React.createClass({
     onOptionSelected: function (opt, e) {
         e.preventDefault();
 
-        var { model, path } = this.props,
-            value = model.child(path).getValueForView();
+        const { store, node } = this.props;
+        const model = store.model;
+        const val_to_add = opt.val;
 
-        //console.log('onOptionSelected', value, opt.val in value, opt);
-
-        if (!_.includes(value, opt.val)) {
-            value.push(opt.val);
-            model.child(path).setValueFromView(value);
-            //console.log('onOptionSelected new value', model.child(path).getValueForView());
+        // model.viewValue(node) -> [{id: "foo"}, ...]
+        // TODO val.id is hardcoded here
+        if (_.some(model.viewValue(node), (val) => val.id === val_to_add)) {
+            return;  // already selected
         }
+
+        // TODO transaction
+        // TODO more elegant
+        // TODO id is hardcoded
+        const new_subnode = model.add(node);
+        model.setViewValue(new_subnode.children.id, val_to_add);
     },
 
     onRemoveClicked: function (opt, e) {
         e.preventDefault();
 
-        //console.log('onRemoveClicked', opt);
+        const { store, node } = this.props;
+        const model = store.model;
+        const val_to_remove = opt.val;
 
-        var { model, path } = this.props,
-            value = model.child(path).getValueForView();
-
-        if (_.remove(value, (val) => val === opt.val).length > 0) {
-            model.child(path).setValueFromView(value);
-        }
+        model.filter(node, (subnode) =>
+            model.viewValue(subnode.children.id) !== val_to_remove);
     },
 
     _closeMenuIfClickedOutside: function (e) {
