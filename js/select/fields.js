@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var cx = require('classnames');
 
 
@@ -170,7 +171,8 @@ export var MultiSelect = React.createClass({
     },
 
     _closeMenuIfClickedOutside: function (e) {
-        if (clickedOutsideElement(React.findDOMNode(this.refs.select), e)) {
+        if (clickedOutsideElement(ReactDOM.findDOMNode(this.refs.select), e)
+            && this.state.dropdown_open) {
             this.setState({dropdown_open: false});
         }
     },
