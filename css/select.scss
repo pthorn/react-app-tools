@@ -2,7 +2,7 @@
 div.rat-select {
     position: relative;
 
-    ul.selected, ul.dropdown, ul.options {
+    ul {
         list-style: none;
         padding-left: 0;
     }
@@ -31,7 +31,7 @@ div.rat-select {
         }
     }
 
-    ul.dropdown {
+    div.dropdown {
         position: absolute;
         z-index: 1;
         width: 100%;

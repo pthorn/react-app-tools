@@ -8,37 +8,40 @@ const ReactDOM = require('react-dom');
 const DropDownList = React.createClass({
     propTypes: {
         options: React.PropTypes.array.isRequired,
-        onSelected: React.PropTypes.func.isRequired,
-        twolevel: React.PropTypes.bool
+        onSelected: React.PropTypes.func.isRequired
     },
 
     render: function () {
-        var { options, twolevel, onSelected } = this.props;
+        const { options, onSelected } = this.props;
 
-        const render_one_level_list = (opts) =>
-            opts.map((opt) =>
+        return <ul className="options">
+            {options.map((opt) =>
                 <li key={opt.val} onClick={onSelected.bind(null, opt)}>
-                    {/* TODO call renderers if any */}
                     {opt.label}
                 </li>
-            );
+            )}
+        </ul>;
+    }
+});
 
-        if (twolevel) {
-            return <ul className="dropdown">
-                {options.map((opts) =>
-                    <li>
-                        <h6>{opts.title}</h6>
-                        <ul className="options">
-                            {render_one_level_list(opts.options)}
-                        </ul>
-                    </li>
-                )}
-            </ul>;
-        } else {
-            return <ul className="dropdown options">
-                {render_one_level_list(options)}
-            </ul>;
-        }
+
+const TwoLevelDropDownList = React.createClass({
+    propTypes: {
+        options: React.PropTypes.array.isRequired,
+        onSelected: React.PropTypes.func.isRequired
+    },
+
+    render: function () {
+        const { options, onSelected } = this.props;
+
+        return <ul>
+            {options.map((opts, n) =>
+                <li key={n}>
+                    <h6>{opts.title}</h6>
+                    <DropDownList options={opts.options} onSelected={onSelected} />
+                </li>
+            )}
+        </ul>;
     }
 });
 
@@ -136,9 +139,15 @@ export const MultiSelect = React.createClass({
                                  selected_options={selected_options}
                                  onClicked={(e) => this.setState({dropdown_open: true})} />
             {dropdown_open &&
-                <DropDownList options={options /*unselected_options*/}
-                              twolevel={twolevel}
-                              onSelected={c.onOptionSelected} />
+                <div className="dropdown">
+                    {twolevel &&
+                        <TwoLevelDropDownList options={options /*unselected_options*/}
+                                              onSelected={c.onOptionSelected}/>
+                    ||
+                        <DropDownList options={options /*unselected_options*/}
+                                      onSelected={c.onOptionSelected}/>
+                    }
+                </div>
             }
         </div>;
     },
