@@ -1,12 +1,11 @@
 'use strict';
 
-var _ = require('lodash');
-var React = require('react');
-var ReactDOM = require('react-dom');
-var cx = require('classnames');
+const _ = require('lodash');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 
-var DropDownList = React.createClass({
+const DropDownList = React.createClass({
     propTypes: {
         options: React.PropTypes.array.isRequired,
         onSelected: React.PropTypes.func.isRequired,
@@ -44,7 +43,7 @@ var DropDownList = React.createClass({
 });
 
 
-var MultiSelectSelected = React.createClass({
+const MultiSelectSelected = React.createClass({
     propTypes: {
         selected_options: React.PropTypes.array.isRequired,
         onClicked: React.PropTypes.func.isRequired,
@@ -69,7 +68,7 @@ var MultiSelectSelected = React.createClass({
 });
 
 
-var clickedOutsideElement = function (element, event) {
+const clickedOutsideElement = function (element, event) {
     var eventTarget = (event.target) ? event.target : event.srcElement;
 
     while (eventTarget != null) {
@@ -81,7 +80,7 @@ var clickedOutsideElement = function (element, event) {
 };
 
 
-export var MultiSelect = React.createClass({
+export const MultiSelect = React.createClass({
     propTypes: {
         store:    React.PropTypes.object.isRequired,
         node:     React.PropTypes.object.isRequired,
