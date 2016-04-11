@@ -46,7 +46,7 @@ const TwoLevelDropDownList = React.createClass({
 });
 
 
-const MultiSelectSelected = React.createClass({
+const SelectedOptions = React.createClass({
     propTypes: {
         selected_options: React.PropTypes.array.isRequired,
         onClicked: React.PropTypes.func.isRequired,
@@ -63,7 +63,7 @@ const MultiSelectSelected = React.createClass({
                     <button onClick={onRemoveClicked.bind(null, opt)}>
                         <i className="fa fa-times" />
                     </button>
-                    {opt.label}
+                    <span>{opt.label}</span>
                 </li>
             )}
         </ul>;
@@ -135,9 +135,9 @@ export const MultiSelect = React.createClass({
         }
 
         return <div ref="select" className="rat-select">
-            <MultiSelectSelected onRemoveClicked={c.onRemoveClicked}
-                                 selected_options={selected_options}
-                                 onClicked={(e) => this.setState({dropdown_open: true})} />
+            <SelectedOptions onRemoveClicked={c.onRemoveClicked}
+                             selected_options={selected_options}
+                             onClicked={(e) => this.setState({dropdown_open: true})} />
             {dropdown_open &&
                 <div className="dropdown">
                     {twolevel &&
