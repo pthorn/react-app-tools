@@ -137,7 +137,7 @@ export const MultiSelect = React.createClass({
         return <div ref="select" className="rat-select">
             <SelectedOptions onRemoveClicked={c.onRemoveClicked}
                              selected_options={selected_options}
-                             onClicked={(e) => this.setState({dropdown_open: true})} />
+                             onClicked={(e) => this.setState({dropdown_open: !dropdown_open})} />
             {dropdown_open &&
                 <div className="dropdown">
                     {twolevel &&
