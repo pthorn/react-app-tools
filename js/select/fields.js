@@ -50,23 +50,40 @@ const SelectedOptions = React.createClass({
     propTypes: {
         selected_options: React.PropTypes.array.isRequired,
         onClicked: React.PropTypes.func.isRequired,
-        onRemoveClicked: React.PropTypes.func.isRequired
+        onRemoveClicked: React.PropTypes.func.isRequired,
+        inputValue: React.PropTypes.string.isRequired,
+        onInputChange: React.PropTypes.func.isRequired,
+        onEnter: React.PropTypes.func.isRequired
     },
 
     render: function () {
-        var { selected_options, onClicked, onRemoveClicked } = this.props;
+        const c = this,
+              p = this.props;
 
         return <ul className="selected"
-                   onClick={onClicked}>
-            {selected_options.map((opt) =>
+                   onClick={p.onClicked}>
+            {p.selected_options.map((opt) =>
                 <li key={opt.val}>
-                    <button onClick={onRemoveClicked.bind(null, opt)}>
+                    <button onClick={p.onRemoveClicked.bind(null, opt)} tabIndex="-1">
                         <i className="fa fa-times" />
                     </button>
                     <span>{opt.label}</span>
                 </li>
             )}
+            <input type="text"
+                   value={p.inputValue} onChange={(e) => p.onInputChange(e.target.value)}
+                   onBlur={p.onEnter}
+                   onKeyPress={c.onKeyPress} />
         </ul>;
+    },
+
+    onKeyPress: function (e) {
+        const { onEnter } = this.props;
+
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            onEnter();
+        }
     }
 });
 
@@ -99,6 +116,7 @@ export const MultiSelect = React.createClass({
 
     getInitialState: function () {
         return {
+            input_value: '',
             dropdown_open: false
         }
     },
@@ -107,7 +125,7 @@ export const MultiSelect = React.createClass({
         const c = this;
         const { store, node, options, twolevel } = c.props;
         const model = store.model;
-        const { dropdown_open } = c.state;
+        const { input_value, dropdown_open } = c.state;
 
         // TODO val.id is hardcoded here
         const selected_option_ids = model.viewValue(node).map((subval) => subval.id);
@@ -137,7 +155,10 @@ export const MultiSelect = React.createClass({
         return <div ref="select" className="rat-select">
             <SelectedOptions onRemoveClicked={c.onRemoveClicked}
                              selected_options={selected_options}
-                             onClicked={(e) => this.setState({dropdown_open: !dropdown_open})} />
+                             onClicked={(e) => c.setState({dropdown_open: !dropdown_open})}
+                             inputValue={input_value}
+                             onInputChange={c.onInputChange}
+                             onEnter={c.onEnter} />
             {dropdown_open &&
                 <div className="dropdown">
                     {twolevel &&
@@ -181,6 +202,17 @@ export const MultiSelect = React.createClass({
 
         model.filter(node, (subnode) =>
             model.viewValue(subnode.children.id) !== val_to_remove);
+    },
+
+    onInputChange: function (val) {
+        console.log('TODO filter:', val);
+        this.setState({input_value: val});
+    },
+
+    onEnter: function () {
+        console.log('ENTER!');
+
+        this.setState({input_value: 'r'});
     },
 
     _closeMenuIfClickedOutside: function (e) {
