@@ -60,3 +60,51 @@ export class TwoLevelOptionHandler extends OneLevelOptionHandler {
         return selected_options;
     }
 }
+
+export class TagOptionHandler {
+    label(option) {
+        return option;
+    }
+
+    value(option) {
+        //console.log('TagOptionHandler.value: option:', option);
+        return option;
+    }
+
+    getSelectedIds(model, node) {
+        // TODO val.id is hardcoded here
+        return model.viewValue(node).map((subval) => subval);
+    }
+
+    getSelected(options, selected_option_ids) {
+        //console.log('TagOptionHandler.getSelected: option:', options, 'selected_option_ids', selected_option_ids);
+        return selected_option_ids;
+    }
+
+    select(model, node, option) {
+        //console.log('TagOptionHandler.select: option:', option);
+
+        if (_.some(model.viewValue(node), (opt) => opt === option)) {
+            return;  // already selected
+        }
+
+        const new_subnode = model.add(node);
+        model.setViewValue(new_subnode, option);
+    }
+
+    addNew(model, node, option) {  // TODO exactly the same as select()
+        //console.log('TagOptionHandler.addNew: option:', option);
+
+        if (_.some(model.viewValue(node), (opt) => opt === option)) {
+            return;  // already selected
+        }
+
+        const new_subnode = model.add(node);
+        model.setViewValue(new_subnode, option);
+    }
+
+    deselect(model, node, option) {
+        model.filter(node, (subnode) =>
+            model.viewValue(subnode) !== option);
+    }
+}

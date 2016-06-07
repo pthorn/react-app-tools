@@ -193,6 +193,10 @@ export const MultiSelect = React.createClass({
         const model = store.model;
         const value = this.state.input_value;
 
+        if (this.config.mode === 'tags' && value) {
+            this.handler.addNew(model, node, value);
+        }
+
         this.setState({input_value: ''});
     },
 
@@ -217,6 +221,8 @@ export const MultiSelect = React.createClass({
                 return new handlers.OneLevelOptionHandler();
             } else if (mode === 'two-level') {
                 return new handlers.TwoLevelOptionHandler();
+            } else if (mode === 'tags') {
+                return new handlers.TagOptionHandler();
             } else {
                 throw new Error('MultiSelect: bad config.mode');
             }
