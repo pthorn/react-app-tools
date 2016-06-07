@@ -4,20 +4,23 @@ const _ = require('lodash');
 const React = require('react');
 const ReactDOM = require('react-dom');
 
+const handlers = require('./option-handlers');
+
 
 const DropDownList = React.createClass({
     propTypes: {
         options: React.PropTypes.array.isRequired,
+        optionHandler: React.PropTypes.object.isRequired,
         onSelected: React.PropTypes.func.isRequired
     },
 
     render: function () {
-        const { options, onSelected } = this.props;
+        const { options, optionHandler: h, onSelected } = this.props;
 
         return <ul className="options">
             {options.map((opt) =>
-                <li key={opt.val} onClick={onSelected.bind(null, opt)}>
-                    {opt.label}
+                <li key={h.value(opt)} onClick={onSelected.bind(null, opt)}>
+                    {h.label(opt)}
                 </li>
             )}
         </ul>;
@@ -28,17 +31,20 @@ const DropDownList = React.createClass({
 const TwoLevelDropDownList = React.createClass({
     propTypes: {
         options: React.PropTypes.array.isRequired,
+        optionHandler: React.PropTypes.object.isRequired,
         onSelected: React.PropTypes.func.isRequired
     },
 
     render: function () {
-        const { options, onSelected } = this.props;
+        const { options, optionHandler, onSelected } = this.props;
 
         return <ul>
             {options.map((opts, n) =>
                 <li key={n}>
                     <h6>{opts.title}</h6>
-                    <DropDownList options={opts.options} onSelected={onSelected} />
+                    <DropDownList options={opts.options}
+                                  optionHandler={optionHandler}
+                                  onSelected={onSelected} />
                 </li>
             )}
         </ul>;
@@ -49,6 +55,7 @@ const TwoLevelDropDownList = React.createClass({
 const SelectedOptions = React.createClass({
     propTypes: {
         selected_options: React.PropTypes.array.isRequired,
+        optionHandler: React.PropTypes.object.isRequired,
         onClicked: React.PropTypes.func.isRequired,
         onRemoveClicked: React.PropTypes.func.isRequired,
         inputValue: React.PropTypes.string.isRequired,
@@ -58,16 +65,17 @@ const SelectedOptions = React.createClass({
 
     render: function () {
         const c = this,
-              p = this.props;
+              p = this.props,
+              h = p.optionHandler;
 
         return <ul className="selected"
                    onClick={p.onClicked}>
             {p.selected_options.map((opt) =>
-                <li key={opt.val}>
+                <li key={h.value(opt)}>
                     <button onClick={p.onRemoveClicked.bind(null, opt)} tabIndex="-1">
                         <i className="fa fa-times" />
                     </button>
-                    <span>{opt.label}</span>
+                    <span>{h.label(opt)}</span>
                 </li>
             )}
             <input type="text"
@@ -105,12 +113,12 @@ export const MultiSelect = React.createClass({
         store:    React.PropTypes.object.isRequired,
         node:     React.PropTypes.object.isRequired,
         options:  React.PropTypes.array.isRequired,
-        twolevel: React.PropTypes.bool
+        config:   React.PropTypes.object
     },
 
     getDefaultProps: function () {
         return {
-            twolevel: false
+            config: {}
         };
     },
 
@@ -123,49 +131,33 @@ export const MultiSelect = React.createClass({
 
     render: function () {
         const c = this;
-        const { store, node, options, twolevel } = c.props;
+        const { store, node, options, config } = c.props;
         const model = store.model;
         const { input_value, dropdown_open } = c.state;
 
-        // TODO val.id is hardcoded here
-        const selected_option_ids = model.viewValue(node).map((subval) => subval.id);
-        var selected_options = [];
-        //var unselected_options = [];  // TODO!
-
+        const selected_option_ids = c.handler.getSelectedIds(model, node);
         //console.log('selected_option_ids', selected_option_ids);
 
-        if (twolevel) {
-            for (let opts of options) {
-                for (let opt of opts.options) {
-                    if (_.includes(selected_option_ids, opt.val)) {
-                        selected_options.push(opt);
-                        //} else {
-                        //    unselected_options.push(opt);
-                    }
-                }
-            }
-        } else {
-            for (let opt of options) {
-                if (_.includes(selected_option_ids, opt.val)) {
-                    selected_options.push(opt);
-                }
-            }
-        }
+        const selected_options = c.handler.getSelected(options, selected_option_ids);
+        //var unselected_options = [];  // TODO!
 
         return <div ref="select" className="rat-select">
-            <SelectedOptions onRemoveClicked={c.onRemoveClicked}
-                             selected_options={selected_options}
+            <SelectedOptions selected_options={selected_options}
+                             optionHandler={c.handler}
                              onClicked={(e) => c.setState({dropdown_open: !dropdown_open})}
+                             onRemoveClicked={c.onRemoveClicked}
                              inputValue={input_value}
                              onInputChange={c.onInputChange}
                              onEnter={c.onEnter} />
             {dropdown_open &&
                 <div className="dropdown">
-                    {twolevel &&
+                    {config.mode === 'two-level' &&
                         <TwoLevelDropDownList options={options /*unselected_options*/}
+                                              optionHandler={c.handler}
                                               onSelected={c.onOptionSelected}/>
                     ||
                         <DropDownList options={options /*unselected_options*/}
+                                      optionHandler={c.handler}
                                       onSelected={c.onOptionSelected}/>
                     }
                 </div>
@@ -178,19 +170,8 @@ export const MultiSelect = React.createClass({
 
         const { store, node } = this.props;
         const model = store.model;
-        const val_to_add = opt.val;
 
-        // model.viewValue(node) -> [{id: "foo"}, ...]
-        // TODO val.id is hardcoded here
-        if (_.some(model.viewValue(node), (val) => val.id === val_to_add)) {
-            return;  // already selected
-        }
-
-        // TODO transaction
-        // TODO more elegant
-        // TODO id is hardcoded
-        const new_subnode = model.add(node);
-        model.setViewValue(new_subnode.children.id, val_to_add);
+        this.handler.select(model, node, opt);
     },
 
     onRemoveClicked: function (opt, e) {
@@ -198,21 +179,21 @@ export const MultiSelect = React.createClass({
 
         const { store, node } = this.props;
         const model = store.model;
-        const val_to_remove = opt.val;
 
-        model.filter(node, (subnode) =>
-            model.viewValue(subnode.children.id) !== val_to_remove);
+        this.handler.deselect(model, node, opt);
     },
 
     onInputChange: function (val) {
-        console.log('TODO filter:', val);
         this.setState({input_value: val});
     },
 
     onEnter: function () {
-        console.log('ENTER!');
 
-        this.setState({input_value: 'r'});
+        const { store, node } = this.props;
+        const model = store.model;
+        const value = this.state.input_value;
+
+        this.setState({input_value: ''});
     },
 
     _closeMenuIfClickedOutside: function (e) {
@@ -220,6 +201,29 @@ export const MultiSelect = React.createClass({
             && this.state.dropdown_open) {
             this.setState({dropdown_open: false});
         }
+    },
+
+    componentWillMount: function () {
+        // TODO use this.props.config
+        const c = this,
+              { config } = this.props;
+
+        c.config = _.extend({
+            mode:           'one-level'
+        }, config);
+
+        c.handler = ((mode) => {
+            if (mode === 'one-level') {
+                return new handlers.OneLevelOptionHandler();
+            } else if (mode === 'two-level') {
+                return new handlers.TwoLevelOptionHandler();
+            } else {
+                throw new Error('MultiSelect: bad config.mode');
+            }
+        })(c.config.mode);
+    },
+
+    componentWillReceiveProps: function () {
     },
 
     componentDidMount: function () {
