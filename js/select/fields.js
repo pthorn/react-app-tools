@@ -79,9 +79,11 @@ const SelectedOptions = React.createClass({
                 </li>
             )}
             <input type="text"
-                   value={p.inputValue} onChange={(e) => p.onInputChange(e.target.value)}
-                   onBlur={p.onEnter}
-                   onKeyPress={c.onKeyPress} />
+                   ref="input"
+                   value={p.inputValue}
+                   onChange={(e) => p.onInputChange(e.target.value)}
+                   onKeyPress={c.onKeyPress}
+                   onBlur={p.onBlur} />
         </ul>;
     },
 
@@ -92,6 +94,15 @@ const SelectedOptions = React.createClass({
             e.preventDefault();
             onEnter();
         }
+    },
+
+    onBlur: function () {
+        // TODO ?
+    },
+
+    // instance API
+    focus: function () {
+        ReactDOM.findDOMNode(this.refs.input).focus();
     }
 });
 
@@ -142,9 +153,10 @@ export const MultiSelect = React.createClass({
         //var unselected_options = [];  // TODO!
 
         return <div ref="select" className="rat-select">
-            <SelectedOptions selected_options={selected_options}
+            <SelectedOptions ref="selectedOptions"
+                             selected_options={selected_options}
                              optionHandler={c.handler}
-                             onClicked={(e) => c.setState({dropdown_open: !dropdown_open})}
+                             onClicked={c.onClicked}
                              onRemoveClicked={c.onRemoveClicked}
                              inputValue={input_value}
                              onInputChange={c.onInputChange}
@@ -165,6 +177,13 @@ export const MultiSelect = React.createClass({
         </div>;
     },
 
+    onClicked: function (e) {
+        const c = this;
+
+        this.refs.selectedOptions.focus();
+        c.setState({dropdown_open: !c.state.dropdown_open});
+    },
+
     onOptionSelected: function (opt, e) {
         e.preventDefault();
 
@@ -172,6 +191,10 @@ export const MultiSelect = React.createClass({
         const model = store.model;
 
         this.handler.select(model, node, opt);
+        this.setState({
+            dropdown_open: false,
+            input_value: ''
+        });
     },
 
     onRemoveClicked: function (opt, e) {
@@ -184,11 +207,13 @@ export const MultiSelect = React.createClass({
     },
 
     onInputChange: function (val) {
-        this.setState({input_value: val});
+        this.setState({
+            dropdown_open: true,
+            input_value: val
+        });
     },
 
     onEnter: function () {
-
         const { store, node } = this.props;
         const model = store.model;
         const value = this.state.input_value;
