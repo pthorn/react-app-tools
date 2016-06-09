@@ -8,13 +8,15 @@ div.rat-select {
     }
 
     ul.selected {
+        display: flex;
+        flex-flow: row wrap;
         min-height: 38px;
         margin-bottom: 0;
         border: 1px solid #ccc;
         border-radius: 4px;
 
         li {
-            display: inline-block;
+            flex: 0 0 auto;
             margin: 6px 0 6px 8px;
             color: white;
             background-color: #286090;
@@ -28,6 +30,14 @@ div.rat-select {
                 padding: 0 5px;
                 font-size: 0.95em;
             }
+        }
+
+        input {
+            flex: 1 0 auto;
+            min-width: 40px;
+            height: 38px;
+            margin-left: 4px;
+            border: none;
         }
     }
 
