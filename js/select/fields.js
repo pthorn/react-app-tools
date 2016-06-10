@@ -147,9 +147,8 @@ export const MultiSelect = React.createClass({
         const { input_value, dropdown_open } = c.state;
 
         const selected_option_ids = c.handler.getSelectedIds(model, node);
-        //console.log('selected_option_ids', selected_option_ids);
-
         const selected_options = c.handler.getSelected(options, selected_option_ids);
+        const filtered_options = c.handler.getFiltered(options, input_value, selected_option_ids);
         //var unselected_options = [];  // TODO!
 
         return <div ref="select" className="rat-select">
@@ -164,11 +163,11 @@ export const MultiSelect = React.createClass({
             {dropdown_open &&
                 <div className="dropdown">
                     {config.mode === 'two-level' &&
-                        <TwoLevelDropDownList options={options /*unselected_options*/}
+                        <TwoLevelDropDownList options={filtered_options /*unselected_options*/}
                                               optionHandler={c.handler}
                                               onSelected={c.onOptionSelected}/>
                     ||
-                        <DropDownList options={options /*unselected_options*/}
+                        <DropDownList options={filtered_options /*unselected_options*/}
                                       optionHandler={c.handler}
                                       onSelected={c.onOptionSelected}/>
                     }
@@ -238,16 +237,17 @@ export const MultiSelect = React.createClass({
               { config } = this.props;
 
         c.config = _.extend({
-            mode:           'one-level'
+            mode: 'one-level',
+            filter_options_by_user_input: false
         }, config);
 
         c.handler = ((mode) => {
             if (mode === 'one-level') {
-                return new handlers.OneLevelOptionHandler();
+                return new handlers.OneLevelOptionHandler(c.config);
             } else if (mode === 'two-level') {
-                return new handlers.TwoLevelOptionHandler();
+                return new handlers.TwoLevelOptionHandler(c.config);
             } else if (mode === 'tags') {
-                return new handlers.TagOptionHandler();
+                return new handlers.TagOptionHandler(c.config);
             } else {
                 throw new Error('MultiSelect: bad config.mode');
             }

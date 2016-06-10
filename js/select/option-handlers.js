@@ -1,7 +1,12 @@
 const _ = require('lodash');
+const S = require('string');
 
 
 export class OneLevelOptionHandler {
+    constructor(config) {
+        this.config = config;
+    }
+
     label(option) {
         return option.label;
     }
@@ -18,6 +23,14 @@ export class OneLevelOptionHandler {
     getSelected(options, selected_option_ids) {
         return _.filter(options, (opt) =>
             _.includes(selected_option_ids, this.value(opt)));
+    }
+
+    getFiltered(options, input_value, selected_option_ids) {
+        if (!this.config.filter_options_by_user_input) {
+            return options;
+        }
+
+        return _.filter(options, (opt) => this.label(opt) === input_value);
     }
 
     select(model, node, option) {
@@ -62,6 +75,10 @@ export class TwoLevelOptionHandler extends OneLevelOptionHandler {
 }
 
 export class TagOptionHandler {
+    constructor(config) {
+        this.config = config;
+    }
+
     label(option) {
         return option;
     }
@@ -79,6 +96,14 @@ export class TagOptionHandler {
     getSelected(options, selected_option_ids) {
         //console.log('TagOptionHandler.getSelected: option:', options, 'selected_option_ids', selected_option_ids);
         return selected_option_ids;
+    }
+
+    getFiltered(options, input_value, selected_option_ids) {  // TODO same as in OneLevel, inherit
+        if (!this.config.filter_options_by_user_input) {
+            return options;
+        }
+
+        return _.filter(options, (opt) => S(this.label(opt)).startsWith(input_value));
     }
 
     select(model, node, option) {
