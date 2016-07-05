@@ -40,6 +40,7 @@ export class Rest {
             this.config.url_prefix = this.config.url_prefix + '/';
         }
 
+        this.csrf_token = this.config.csrf_token;
         this.requests_in_progress = 0;
     }
 
@@ -62,8 +63,8 @@ export class Rest {
             contentType: 'application/json'
         };
 
-        if (opts.method != 'GET' && this.config.csrf_token !== null) {
-            let csrf_token = this.config.csrf_token;
+        if (opts.method != 'GET' && this.csrf_token !== null) {
+            let csrf_token = this.csrf_token;
             if (_.isFunction(csrf_token)) {
                 csrf_token = csrf_token();
             }
@@ -248,6 +249,12 @@ export class Rest {
             method: 'DELETE',
             data: data
         });
+    }
+
+    // utiliity
+
+    set csrfToken(new_token) {
+        this.csrf_token = new_token;
     }
 }
 
