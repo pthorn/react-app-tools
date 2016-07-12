@@ -3,53 +3,57 @@
 const _ = require('lodash');
 const React = require('react');
 const ReactDOM = require('react-dom');
+const cx = require('classnames');
 
 const handlers = require('./option-handlers');
 
 
-const DropDownList = React.createClass({
-    propTypes: {
-        options: React.PropTypes.array.isRequired,
-        optionHandler: React.PropTypes.object.isRequired,
-        onSelected: React.PropTypes.func.isRequired
-    },
+const List = function (props) {
+    const { options, optionHandler: h, onSelected } = props;
 
-    render: function () {
-        const { options, optionHandler: h, onSelected } = this.props;
-
-        return <ul className="options">
-            {options.map((opt) =>
-                <li key={h.value(opt)} onClick={onSelected.bind(null, opt)}>
-                    {h.label(opt)}
-                </li>
-            )}
-        </ul>;
-    }
-});
+    return <ul>
+        {options.length > 0 && options.map((opt) =>
+            <Row key={h.value(opt)}
+                 option={opt}
+                 optionHandler={h}
+                 onSelected={onSelected} />
+        )}
+    </ul>;
+};
 
 
-const TwoLevelDropDownList = React.createClass({
-    propTypes: {
-        options: React.PropTypes.array.isRequired,
-        optionHandler: React.PropTypes.object.isRequired,
-        onSelected: React.PropTypes.func.isRequired
-    },
+const Row = function (props) {
+    const { option, optionHandler: h, onSelected } = props;
 
-    render: function () {
-        const { options, optionHandler, onSelected } = this.props;
+    const has_children = _.has(option, 'children');
 
-        return <ul>
-            {options.map((opts, n) =>
-                <li key={n}>
-                    <h6>{opts.title}</h6>
-                    <DropDownList options={opts.options}
-                                  optionHandler={optionHandler}
-                                  onSelected={onSelected} />
-                </li>
-            )}
-        </ul>;
-    }
-});
+    return <li className={cx({selectable: !has_children})}
+               onClick={has_children ? null : onSelected.bind(null, option)}>
+        {has_children &&
+            <h6>{h.label(option)}</h6>
+        ||
+            <span>{h.label(option)}</span>
+        }
+        {has_children &&
+            <List options={option.children}
+                  optionHandler={h}
+                  onSelected={onSelected} />
+        }
+    </li>;
+};
+
+
+const DropDown = function (props) {
+    const { options, optionHandler, onSelected } = props;
+
+    return <div className="dropdown">
+        {options.length > 0 &&
+            <List options={options} optionHandler={optionHandler} onSelected={onSelected} />
+        ||
+            <p>Nothing</p>
+        }
+    </div>;
+};
 
 
 const SelectedOptions = React.createClass({
@@ -161,17 +165,9 @@ export const MultiSelect = React.createClass({
                              onInputChange={c.onInputChange}
                              onEnter={c.onEnter} />
             {dropdown_open &&
-                <div className="dropdown">
-                    {config.mode === 'two-level' &&
-                        <TwoLevelDropDownList options={filtered_options /*unselected_options*/}
-                                              optionHandler={c.handler}
-                                              onSelected={c.onOptionSelected}/>
-                    ||
-                        <DropDownList options={filtered_options /*unselected_options*/}
-                                      optionHandler={c.handler}
-                                      onSelected={c.onOptionSelected}/>
-                    }
-                </div>
+                <DropDown options={filtered_options /*unselected_options*/}
+                          optionHandler={c.handler}
+                          onSelected={c.onOptionSelected}/>
             }
         </div>;
     },
@@ -232,20 +228,17 @@ export const MultiSelect = React.createClass({
     },
 
     componentWillMount: function () {
-        // TODO use this.props.config
         const c = this,
               { config } = this.props;
 
         c.config = _.extend({
-            mode: 'one-level',
+            mode: 'hierarchy',
             filter_options_by_user_input: false
         }, config);
 
         c.handler = ((mode) => {
-            if (mode === 'one-level') {
-                return new handlers.OneLevelOptionHandler(c.config);
-            } else if (mode === 'two-level') {
-                return new handlers.TwoLevelOptionHandler(c.config);
+            if (mode === 'hierarchy') {
+                return new handlers.HierarchicalOptionHandler(c.config);
             } else if (mode === 'tags') {
                 return new handlers.TagOptionHandler(c.config);
             } else {

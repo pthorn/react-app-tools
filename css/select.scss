@@ -55,22 +55,18 @@ div.rat-select {
         h6 {
             font-weight: bold;
         }
-    }
 
-    ul.options {
-        li {
-            padding: 2px 6px;
+        ul {
+            li {
+                padding: 2px 6px;
 
-            &:not(.disabled) {
-                cursor: pointer;
+                &.selectable:not(.disabled) {
+                    cursor: pointer;
 
-                &:hover {
-                    background: #eee;
+                    &:hover {
+                        background: #eee;
+                    }
                 }
-            }
-
-            span {
-                padding: 0 4px;
             }
         }
     }

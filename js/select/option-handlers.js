@@ -2,7 +2,11 @@ const _ = require('lodash');
 const S = require('string');
 
 
-export class OneLevelOptionHandler {
+/**
+ * options: [<option>, <option>, ...]
+ * option: {label: '...', val: '...', children: <options>}
+ */
+export class HierarchicalOptionHandler {
     constructor(config) {
         this.config = config;
     }
@@ -21,8 +25,23 @@ export class OneLevelOptionHandler {
     }
 
     getSelected(options, selected_option_ids) {
-        return _.filter(options, (opt) =>
-            _.includes(selected_option_ids, this.value(opt)));
+        const selected_options = [];
+
+        const gather = (options) => {
+            for (let opt of options) {
+                if (_.includes(selected_option_ids, this.value(opt))) {
+                    selected_options.push(opt);
+                }
+
+                if (_.isArray(opt.children)) {
+                    gather(opt.children);
+                }
+            }
+        };
+
+        gather(options);
+
+        return selected_options;
     }
 
     getFiltered(options, input_value, selected_option_ids) {
@@ -58,21 +77,6 @@ export class OneLevelOptionHandler {
     }
 }
 
-export class TwoLevelOptionHandler extends OneLevelOptionHandler {
-    getSelected(options, selected_option_ids) {
-        const selected_options = [];
-
-        for (let opts of options) {
-            for (let opt of opts.options) {
-                if (_.includes(selected_option_ids, this.value(opt))) {
-                    selected_options.push(opt);
-                }
-            }
-        }
-
-        return selected_options;
-    }
-}
 
 export class TagOptionHandler {
     constructor(config) {
