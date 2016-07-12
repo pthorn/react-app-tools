@@ -19,6 +19,14 @@ export class HierarchicalOptionHandler {
         return option.val;
     }
 
+    children(option) {
+        return option.children;
+    }
+
+    hasChildren(option) {
+        return _.isArray(option.children);
+    }
+
     getSelectedIds(model, node) {
         // TODO val.id is hardcoded here
         return model.viewValue(node).map((subval) => subval.id);
@@ -33,8 +41,8 @@ export class HierarchicalOptionHandler {
                     selected_options.push(opt);
                 }
 
-                if (_.isArray(opt.children)) {
-                    gather(opt.children);
+                if (this.hasChildren(opt)) {
+                    gather(this.children(opt));
                 }
             }
         };
@@ -90,6 +98,10 @@ export class TagOptionHandler {
     value(option) {
         //console.log('TagOptionHandler.value: option:', option);
         return option;
+    }
+
+    hasChildren(option) {
+        return false;
     }
 
     getSelectedIds(model, node) {

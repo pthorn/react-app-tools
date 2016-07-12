@@ -25,7 +25,7 @@ const List = function (props) {
 const Row = function (props) {
     const { option, optionHandler: h, onSelected } = props;
 
-    const has_children = _.has(option, 'children');
+    const has_children = h.hasChildren(option);
 
     return <li className={cx({selectable: !has_children})}
                onClick={has_children ? null : onSelected.bind(null, option)}>
@@ -35,7 +35,7 @@ const Row = function (props) {
             <span>{h.label(option)}</span>
         }
         {has_children &&
-            <List options={option.children}
+            <List options={h.children(option)}
                   optionHandler={h}
                   onSelected={onSelected} />
         }
