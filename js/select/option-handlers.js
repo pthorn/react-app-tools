@@ -12,19 +12,19 @@ export class HierarchicalOptionHandler {
     }
 
     label(option) {
-        return option.label;
+        return option[this.config.option_label_key];
     }
 
     value(option) {
-        return option.val;
+        return option[this.config.option_value_key];
     }
 
     children(option) {
-        return option.children;
+        return option[this.config.option_children_key];
     }
 
     hasChildren(option) {
-        return _.isArray(option.children);
+        return _.isArray(this.children(option)) && this.children(option).length > 0;
     }
 
     getSelectedIds(model, node) {

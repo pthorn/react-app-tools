@@ -233,6 +233,9 @@ export const MultiSelect = React.createClass({
 
         c.config = _.extend({
             mode: 'hierarchy',
+            option_label_key: 'label',
+            option_value_key: 'val',
+            option_children_key: 'children',
             filter_options_by_user_input: false
         }, config);
 
