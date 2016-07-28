@@ -9,26 +9,27 @@ const handlers = require('./option-handlers');
 
 
 const List = function (props) {
-    const { options, optionHandler: h, onSelected } = props;
+    const { options, common } = props;
+    const h = common.optionHandler;
 
     return <ul>
         {options.length > 0 && options.map((opt) =>
             <Row key={h.value(opt)}
                  option={opt}
-                 optionHandler={h}
-                 onSelected={onSelected} />
+                 common={common} />
         )}
     </ul>;
 };
 
 
 const Row = function (props) {
-    const { option, optionHandler: h, onSelected } = props;
+    const { option, common } = props;
+    const h = common.optionHandler;
 
     const has_children = h.hasChildren(option);
 
     return <li className={cx({selectable: !has_children})}
-               onClick={has_children ? null : onSelected.bind(null, option)}>
+               onClick={has_children ? null : common.onOptionSelected.bind(null, option)}>
         {has_children &&
             <h6>{h.label(option)}</h6>
         ||
@@ -36,19 +37,18 @@ const Row = function (props) {
         }
         {has_children &&
             <List options={h.children(option)}
-                  optionHandler={h}
-                  onSelected={onSelected} />
+                  common={common} />
         }
     </li>;
 };
 
 
 const DropDown = function (props) {
-    const { options, optionHandler, onSelected } = props;
+    const { options, common } = props;
 
     return <div className="dropdown">
         {options.length > 0 &&
-            <List options={options} optionHandler={optionHandler} onSelected={onSelected} />
+            <List options={options} common={common} />
         ||
             <p>Nothing</p>
         }
@@ -59,24 +59,20 @@ const DropDown = function (props) {
 const SelectedOptions = React.createClass({
     propTypes: {
         selected_options: React.PropTypes.array.isRequired,
-        optionHandler: React.PropTypes.object.isRequired,
-        onClicked: React.PropTypes.func.isRequired,
-        onRemoveClicked: React.PropTypes.func.isRequired,
         inputValue: React.PropTypes.string.isRequired,
-        onInputChange: React.PropTypes.func.isRequired,
-        onEnter: React.PropTypes.func.isRequired
+        common: React.PropTypes.object.isRequired
     },
 
     render: function () {
         const c = this,
-              p = this.props,
-              h = p.optionHandler;
+              { selected_options, inputValue, common } = this.props,
+              h = common.optionHandler;
 
         return <ul className="selected"
-                   onClick={p.onClicked}>
-            {p.selected_options.map((opt) =>
+                   onClick={common.onClicked}>
+            {selected_options.map((opt) =>
                 <li key={h.value(opt)}>
-                    <button onClick={p.onRemoveClicked.bind(null, opt)} tabIndex="-1">
+                    <button onClick={common.onRemoveClicked.bind(null, opt)} tabIndex="-1">
                         <i className="fa fa-times" />
                     </button>
                     <span>{h.label(opt)}</span>
@@ -84,24 +80,19 @@ const SelectedOptions = React.createClass({
             )}
             <input type="text"
                    ref="input"
-                   value={p.inputValue}
-                   onChange={(e) => p.onInputChange(e.target.value)}
-                   onKeyPress={c.onKeyPress}
-                   onBlur={p.onBlur} />
+                   value={inputValue}
+                   onChange={(e) => common.onInputChange(e.target.value)}
+                   onKeyPress={c.onKeyPress} />
         </ul>;
     },
 
     onKeyPress: function (e) {
-        const { onEnter } = this.props;
+        const { onEnter } = this.props.common;
 
         if (e.key === 'Enter') {
             e.preventDefault();
             onEnter();
         }
-    },
-
-    onBlur: function () {
-        // TODO ?
     },
 
     // instance API
@@ -155,19 +146,23 @@ export const MultiSelect = React.createClass({
         const filtered_options = c.handler.getFiltered(options, input_value, selected_option_ids);
         //var unselected_options = [];  // TODO!
 
+        const common = {
+            optionHandler: c.handler,
+            onClicked: c.onClicked,
+            onOptionSelected: c.onOptionSelected,
+            onRemoveClicked: c.onRemoveClicked,
+            onInputChange: c.onInputChange,
+            onEnter: c.onEnter
+        };
+
         return <div ref="select" className="rat-select">
             <SelectedOptions ref="selectedOptions"
                              selected_options={selected_options}
-                             optionHandler={c.handler}
-                             onClicked={c.onClicked}
-                             onRemoveClicked={c.onRemoveClicked}
                              inputValue={input_value}
-                             onInputChange={c.onInputChange}
-                             onEnter={c.onEnter} />
+                             common={common} />
             {dropdown_open &&
                 <DropDown options={filtered_options /*unselected_options*/}
-                          optionHandler={c.handler}
-                          onSelected={c.onOptionSelected}/>
+                          common={common} />
             }
         </div>;
     },
