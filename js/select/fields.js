@@ -141,7 +141,7 @@ export const MultiSelect = React.createClass({
         const model = store.model;
         const { input_value, dropdown_open } = c.state;
 
-        const selected_option_ids = c.handler.getSelectedIds(model, node);
+        const selected_option_ids = c.model_handler.getSelectedIds(model, node);
         const selected_options = c.handler.getSelected(options, selected_option_ids);
         const filtered_options = c.handler.getFiltered(options, input_value, selected_option_ids);
         //var unselected_options = [];  // TODO!
@@ -180,7 +180,7 @@ export const MultiSelect = React.createClass({
         const { store, node } = this.props;
         const model = store.model;
 
-        this.handler.select(model, node, opt);
+        this.model_handler.select(model, node, opt);
         this.setState({
             dropdown_open: false,
             input_value: ''
@@ -193,7 +193,7 @@ export const MultiSelect = React.createClass({
         const { store, node } = this.props;
         const model = store.model;
 
-        this.handler.deselect(model, node, opt);
+        this.model_handler.deselect(model, node, opt);
     },
 
     onInputChange: function (val) {
@@ -209,7 +209,7 @@ export const MultiSelect = React.createClass({
         const value = this.state.input_value;
 
         if (this.config.mode === 'tags' && value) {
-            this.handler.addNew(model, node, value);
+            this.model_handler.addNew(model, node, value);
         }
 
         this.setState({input_value: ''});
@@ -228,6 +228,7 @@ export const MultiSelect = React.createClass({
 
         c.config = _.extend({
             mode: 'hierarchy',
+            model: config.mode === 'tags' ? 'flat' : 'objects',
             option_label_key: 'label',
             option_value_key: 'val',
             option_children_key: 'children',
@@ -243,6 +244,18 @@ export const MultiSelect = React.createClass({
                 throw new Error('MultiSelect: bad config.mode');
             }
         })(c.config.mode);
+
+        c.model_handler = ((model) => {
+            if (model === 'objects') {
+                return new handlers.ObjectListModelHandler(c.config, c.handler);
+            } else if (model === 'flat') {
+                return new handlers.FlatListModelHandler(c.config, c.handler);
+            } else if (model === 'simple') {
+                return new handlers.SimpleIDModelHandler(c.config, c.handler);
+            } else {
+                throw new Error('MultiSelect: bad config.model');
+            }
+        })(c.config.model);
     },
 
     componentWillReceiveProps: function () {

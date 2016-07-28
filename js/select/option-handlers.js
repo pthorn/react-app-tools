@@ -27,11 +27,6 @@ export class HierarchicalOptionHandler {
         return _.isArray(this.children(option)) && this.children(option).length > 0;
     }
 
-    getSelectedIds(model, node) {
-        // TODO val.id is hardcoded here
-        return model.viewValue(node).map((subval) => subval.id);
-    }
-
     getSelected(options, selected_option_ids) {
         const selected_options = [];
 
@@ -59,30 +54,6 @@ export class HierarchicalOptionHandler {
 
         return _.filter(options, (opt) => this.label(opt) === input_value);
     }
-
-    select(model, node, option) {
-        const id_to_select = this.value(option);
-
-        // model.viewValue(node) -> [{id: "foo"}, ...]
-        // TODO id is hardcoded (NOT the same thing as opt.val!!!)
-        if (_.some(model.viewValue(node), (opt) => opt.id === id_to_select)) {
-            return;  // already selected
-        }
-
-        // TODO transaction
-        // TODO more elegant
-        // TODO id is hardcoded
-        const new_subnode = model.add(node);
-        model.setViewValue(new_subnode.children.id, id_to_select);
-    }
-
-    deselect(model, node, option) {
-        const id_to_deselect = this.value(option);
-
-        // TODO id is hardcoded
-        model.filter(node, (subnode) =>
-            model.viewValue(subnode.children.id) !== id_to_deselect);
-    }
 }
 
 
@@ -104,11 +75,6 @@ export class TagOptionHandler {
         return false;
     }
 
-    getSelectedIds(model, node) {
-        // TODO val.id is hardcoded here
-        return model.viewValue(node).map((subval) => subval);
-    }
-
     getSelected(options, selected_option_ids) {
         //console.log('TagOptionHandler.getSelected: option:', options, 'selected_option_ids', selected_option_ids);
         return selected_option_ids;
@@ -121,16 +87,53 @@ export class TagOptionHandler {
 
         return _.filter(options, (opt) => S(this.label(opt)).startsWith(input_value));
     }
+}
+
+
+/**
+ * model: '...'
+ */
+export class SimpleIDModelHandler {
+    constructor(config, option_handler) {
+        this.config = config;
+        this.opt_handler = option_handler;
+    }
+
+    getSelectedIds(model, node) {
+        return model.viewValue(node);
+    }
 
     select(model, node, option) {
-        //console.log('TagOptionHandler.select: option:', option);
+        model.setViewValue(node, this.opt_handler.value(option));
+    }
 
-        if (_.some(model.viewValue(node), (opt) => opt === option)) {
+    deselect(model, node, option) {
+        model.setViewValue(node, this.opt_handler.value(option));
+    }
+}
+
+
+/**
+ * model: ['...', ...]
+ */
+export class FlatListModelHandler {
+    constructor(config, option_handler) {
+        this.config = config;
+        this.opt_handler = option_handler;
+    }
+
+    getSelectedIds(model, node) {
+        // TODO val.id is hardcoded here
+        return model.viewValue(node).map((subval) => subval);
+    }
+
+    select(model, node, option) {
+        if (_.some(model.viewValue(node), (val) => val === this.opt_handler.value(option))) {
             return;  // already selected
         }
 
         const new_subnode = model.add(node);
-        model.setViewValue(new_subnode, option);
+        model.setViewValue(new_subnode, this.opt_handler.value(option));
     }
 
     addNew(model, node, option) {  // TODO exactly the same as select()
@@ -147,5 +150,45 @@ export class TagOptionHandler {
     deselect(model, node, option) {
         model.filter(node, (subnode) =>
             model.viewValue(subnode) !== option);
+    }
+}
+
+
+/**
+ * model: [{id: '...'}, ...]
+ */
+export class ObjectListModelHandler {
+    constructor(config, option_handler) {
+        this.config = config;
+        this.opt_handler = option_handler;
+    }
+
+    getSelectedIds(model, node) {
+        // TODO val.id is hardcoded here
+        return model.viewValue(node).map((subval) => subval.id);
+    }
+
+    select(model, node, option) {
+        const id_to_select = this.opt_handler.value(option);
+
+        // model.viewValue(node) -> [{id: "foo"}, ...]
+        // TODO id is hardcoded (NOT the same thing as opt.val!!!)
+        if (_.some(model.viewValue(node), (opt) => opt.id === id_to_select)) {
+            return;  // already selected
+        }
+
+        // TODO transaction
+        // TODO more elegant
+        // TODO id is hardcoded
+        const new_subnode = model.add(node);
+        model.setViewValue(new_subnode.children.id, id_to_select);
+    }
+
+    deselect(model, node, option) {
+        const id_to_deselect = this.opt_handler.value(option);
+
+        // TODO id is hardcoded
+        model.filter(node, (subnode) =>
+            model.viewValue(subnode.children.id) !== id_to_deselect);
     }
 }
