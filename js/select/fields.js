@@ -5,7 +5,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const cx = require('classnames');
 
-const handlers = require('./option-handlers');
+const handlers = require('./handlers');
 
 
 const List = function (props) {
