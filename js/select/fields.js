@@ -56,6 +56,23 @@ const DropDown = function (props) {
 };
 
 
+const SelectedOption = function (props) {
+    const { selected_options, common } = props;
+    const h = common.optionHandler;
+
+    const opt = selected_options.length > 0 ? selected_options[0] : null;
+
+    return <ul className="selected single"
+               onClick={common.onClicked}>
+        {opt &&
+            <span className="single">{h.label(opt)}</span>
+        ||
+            <span className="single">----</span>
+        }
+    </ul>;
+};
+
+
 const SelectedOptions = React.createClass({
     propTypes: {
         selected_options: React.PropTypes.array.isRequired,
@@ -156,10 +173,15 @@ export const MultiSelect = React.createClass({
         };
 
         return <div ref="select" className="rat-select">
-            <SelectedOptions ref="selectedOptions"
-                             selected_options={selected_options}
-                             inputValue={input_value}
-                             common={common} />
+            {c.config.model === 'simple' &&
+                <SelectedOption selected_options={selected_options}
+                                common={common} />
+            ||
+                <SelectedOptions ref="selectedOptions"
+                                 selected_options={selected_options}
+                                 inputValue={input_value}
+                                 common={common} />
+            }
             {dropdown_open &&
                 <DropDown options={filtered_options /*unselected_options*/}
                           common={common} />
@@ -170,7 +192,7 @@ export const MultiSelect = React.createClass({
     onClicked: function (e) {
         const c = this;
 
-        this.refs.selectedOptions.focus();
+        this.refs.selectedOptions && this.refs.selectedOptions.focus();
         c.setState({dropdown_open: !c.state.dropdown_open});
     },
 
