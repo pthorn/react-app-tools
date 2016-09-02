@@ -243,7 +243,10 @@ export const MultiSelect = React.createClass({
             this.model_handler.addNew(model, node, value);
         }
 
-        this.setState({input_value: ''});
+        this.setState({
+            input_value: '',
+            dropdown_open: false
+        });
     },
 
     _closeMenuIfClickedOutside: function (e) {
