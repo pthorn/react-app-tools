@@ -99,7 +99,8 @@ const SelectedOptions = React.createClass({
                    ref="input"
                    value={inputValue}
                    onChange={(e) => common.onInputChange(e.target.value)}
-                   onKeyPress={c.onKeyPress} />
+                   onKeyPress={c.onKeyPress}
+                   onKeyDown={c.onKeyDown} />
         </ul>;
     },
 
@@ -108,6 +109,14 @@ const SelectedOptions = React.createClass({
 
         if (e.key === 'Enter') {
             e.preventDefault();
+            onEnter();
+        }
+    },
+
+    onKeyDown: function (e) {
+        const { onEnter } = this.props.common;
+
+        if (e.key === 'Tab') {  //  || e.key === ' '
             onEnter();
         }
     },
