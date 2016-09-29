@@ -98,14 +98,14 @@ export class Rest {
 
                     if (json.status === 'ok') {
                         resolve(json);
-                    }
-
-                    if (json.status !== 'ok') {
-                        self.emit('rest-error', json);
-                        reject(new RestError({
+                    } else {
+                        const error = new RestError({
                             reason: 'rest-error',
                             json_response: json
-                        }));
+                        });
+
+                        self.emit('rest-error', error);
+                        reject(error);
                     }
                 },
 
