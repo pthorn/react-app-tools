@@ -42,6 +42,8 @@ export class Rest {
 
         this.csrf_token = this.config.csrf_token;
         this.requests_in_progress = 0;
+
+        EventEmitter.call(this);
     }
 
     /**

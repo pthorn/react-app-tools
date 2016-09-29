@@ -23,6 +23,8 @@ class FormStore {
             throw new Error('FormStore: bad options.entity');
         }
         this.entity = this.options.entity;
+
+        EventEmitter.call(this);
     }
 
     getModel() {

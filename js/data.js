@@ -31,6 +31,8 @@ define([
         this.order_dir = this.config.order_dir;
         this.filters = this.config.filters;
         this.search = '';
+
+        EventEmitter.call(this);
     };
 
     _.extend(PagedStore.prototype, EventEmitter.prototype);
