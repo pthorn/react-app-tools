@@ -263,6 +263,7 @@ export const MultiSelect = React.createClass({
         c.config = _.extend({
             mode: 'hierarchy',
             model: config.mode === 'tags' ? 'flat' : 'objects',
+            model_id_key: 'id',
             option_label_key: 'label',
             option_value_key: 'val',
             option_children_key: 'children',
