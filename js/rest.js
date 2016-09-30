@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import EventEmitter from 'eventemitter';
+import $ from 'jquery';
 
 
 export function RestError (options) {
