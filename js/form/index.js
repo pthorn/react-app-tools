@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = {
-    Model: require('./model'),
     FormStore: require('./store').FormStore,
 
     FormGroup: require('./form').FormGroup,
