@@ -57,37 +57,26 @@ var ColumnHeader = React.createClass({
 
 /**
  * <Cell grid={} col_config={} row={} />
+ * key can be a dotted string or a list (see https://lodash.com/docs#get)
  */
-var Cell = React.createClass({
-    render: function () {
-        var c = this,
-            p = this.props;
+const Cell = function (p) {
+    const col_config = p.col_config,
+          key = col_config.key;
 
-        var col_config = p.col_config,
-            key = col_config.key;
+    const val = _.get(p.row, key);
 
-        // key is a string or a list of strings: 'a' -> val = row.a; ['a', 'b'] -> val = row.a.b
-        var val = null;
-        if (_.isString(key)) {
-            val = p.row[key];
-        } else {
-            val = p.row;
-            _.each(key, el => val = val[el]);
-        }
-
-        if (col_config.template) {
-            return <td>
-                <col_config.template
-                  val={val}
-                  row={p.row}
-                  col_config={col_config}
-                  grid={p.grid} />
-            </td>;
-        } else {
-            return <td>{val}</td>;
-        }
+    if (col_config.template) {
+        return <td>
+            <col_config.template
+              val={val}
+              row={p.row}
+              col_config={col_config}
+              grid={p.grid} />
+        </td>;
+    } else {
+        return <td>{val}</td>;
     }
-});
+};
 
 
 /**
