@@ -1,6 +1,7 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
+const $ = require('jquery');
 
 
 /**
